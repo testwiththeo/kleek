@@ -1,0 +1,47 @@
+[workspace]
+members = [
+    "crates/kleek-proto",
+    "crates/kleek-driver",
+    "crates/kleek-daemon",
+    "crates/kleek-cli",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/theobuilds/kleek"
+authors = ["Ray <ray@kleek.local>"]
+
+[workspace.dependencies]
+# Internal workspace crates
+kleek-proto = { path = "crates/kleek-proto" }
+kleek-driver = { path = "crates/kleek-driver" }
+
+# Error handling
+thiserror = "2.0"
+anyhow = "1.0"
+
+# Codec & bit manipulation
+zerocopy = { version = "0.8", features = ["derive"] }
+bitflags = "2.8"
+
+# Async & IPC
+tokio = { version = "1.43", features = ["full"] }
+zbus = "5.5"
+
+# Hardware & input subsystems (Linux)
+hidapi = "2.6"
+udev = "0.9"
+evdev = "0.12"
+
+# CLI & Configuration
+clap = { version = "4.5", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.8"
+colored = "3.0"
+
+# Logging & Telemetry
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }

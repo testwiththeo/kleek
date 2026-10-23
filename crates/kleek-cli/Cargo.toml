@@ -1,0 +1,20 @@
+[package]
+name = "kleek-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Command-line control interface (kleekctl) for the kleek mouse daemon"
+
+[[bin]]
+name = "kleekctl"
+path = "src/main.rs"
+
+[dependencies]
+kleek-proto = { workspace = true }
+clap = { workspace = true }
+anyhow = { workspace = true }
+colored = { workspace = true }
+zbus = { workspace = true }
+
+[dev-dependencies]

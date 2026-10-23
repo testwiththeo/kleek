@@ -1,0 +1,17 @@
+[package]
+name = "kleek-driver"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Hardware transport and event interception layer for the kleek mouse daemon"
+
+[dependencies]
+kleek-proto = { workspace = true }
+thiserror = { workspace = true }
+hidapi = { workspace = true }
+udev = { workspace = true }
+evdev = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
