@@ -1,3 +1,6 @@
+pub mod hotplug;
+pub use hotplug::{filter_mouse_devices, DeviceEvent, RawDeviceInfo};
+
 use kleek_proto::{MouseCommand, MouseResponse, ProtoError, REPORT_SIZE};
 use thiserror::Error;
 
