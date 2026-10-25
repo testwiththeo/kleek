@@ -1,6 +1,11 @@
 # kleek
 
-The mouse utility that gets out of your way.
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=flat-square)](https://github.com/testwiththeo/kleek/actions)
+[![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue?style=flat-square)](LICENSE-MIT)
+[![Rust Edition](https://img.shields.io/badge/rust-2021%20edition-orange?style=flat-square)](https://www.rust-lang.org/)
+[![Platform](https://img.shields.io/badge/platform-Linux-informational?style=flat-square)](#platform-support)
+
+The mouse companion that gets out of your way.
 
 `kleek` is a lightweight, open-source mouse companion designed to give you precise control over your pointer, scroll wheel, and device settings without heavy background suites.
 
@@ -45,7 +50,6 @@ kleekctl scroll --smooth on
 ## Platform Support
 
 * **Linux**: Native userspace daemon via `evdev`, `/dev/uinput`, and `hidapi` (Wayland & X11).
-* **Windows**: Architecture designed for cross-platform support via Windows Raw Input / Win32 HID APIs (planned).
 
 ## Documentation
 
