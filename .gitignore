@@ -3,3 +3,9 @@
 *.swp
 *~
 .DS_Store
+
+# Local agent engineering docs & plans (do not push to public repo)
+docs/plans/
+docs/TICKETS.md
+SPEC.md
+AGENTS.md
