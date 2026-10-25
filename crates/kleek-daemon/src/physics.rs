@@ -26,7 +26,8 @@ pub struct ScrollAccumulator {
 #[allow(dead_code)]
 impl ScrollAccumulator {
     pub fn new(config: ScrollPhysicsConfig) -> Self {
-        let damping_factor = 4.0 / config.duration_seconds.max(0.01);
+        // λ = 1.0 / duration ensures total integrated distance = step_size
+        let damping_factor = 1.0 / config.duration_seconds.max(0.01);
         Self {
             config,
             velocity: 0.0,
@@ -44,7 +45,7 @@ impl ScrollAccumulator {
             1.0
         };
 
-        let impulse = direction * self.config.step_size * gain;
+        let impulse = direction * self.config.step_size * self.damping_factor * gain;
         self.velocity += impulse;
     }
 
@@ -55,9 +56,13 @@ impl ScrollAccumulator {
             return 0;
         }
 
+    // Apply decay factor to velocity
         let decay = (-self.damping_factor * delta_seconds).exp();
-        let distance = self.velocity * delta_seconds;
+        let current_v = self.velocity;
         self.velocity *= decay;
+
+        // Integral distance traveled during this interval
+        let distance = current_v * (1.0 - decay) / self.damping_factor;
 
         let total_units = (distance * (120.0 / self.config.step_size)) + self.fractional_remainder;
         let emit_units = total_units.trunc() as i32;
@@ -83,7 +88,7 @@ mod tests {
         assert!(acc.is_active());
 
         let mut total_emitted = 0;
-        for _ in 0..100 {
+        for _ in 0..400 {
             total_emitted += acc.tick(0.008); // 8ms ticks (~120Hz)
         }
 
