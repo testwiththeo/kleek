@@ -1,7 +1,5 @@
-mod physics;
-
 use anyhow::Result;
-use physics::{ScrollAccumulator, ScrollPhysicsConfig};
+use kleek_daemon::physics::{ScrollAccumulator, ScrollPhysicsConfig};
 use tracing::info;
 
 #[tokio::main]
