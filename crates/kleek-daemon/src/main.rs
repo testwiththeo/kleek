@@ -7,10 +7,16 @@ async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
     info!("Starting kleek daemon (kleekd)...");
 
-    // Initialize smooth scroll physics engine
     let _scroll_engine = ScrollAccumulator::new(ScrollPhysicsConfig::default());
     info!("Smooth scroll physics engine initialized.");
 
-    info!("kleekd ready.");
+    let manager = kleek_daemon::dbus::KleekManager::new();
+    let _conn = zbus::connection::Builder::session()?
+        .name("org.freedesktop.Kleek1")?
+        .serve_at("/org/freedesktop/Kleek1", manager)?
+        .build()
+        .await?;
+
+    info!("kleekd D-Bus endpoint org.freedesktop.Kleek1 registered successfully.");
     Ok(())
 }
