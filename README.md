@@ -16,6 +16,8 @@ The mouse companion that gets out of your way.
   - `Shift` + Scroll: Automatically converts vertical wheel rolls into smooth horizontal scrolling (`REL_HWHEEL_HI_RES`).
   - `Alt` + Scroll: Precision mode (0.3× micro speed) for fine navigation and technical reading.
   - `Ctrl` + Scroll: Controlled zoom increments without erratic runaway momentum.
+* **Per-Device Independence**: Automatically detects and isolates laptop touchpads, keeping native trackpad gestures intact while applying smooth gliding exclusively to external mice.
+* **App-Specific Exclusions**: Automatically bypasses inertia for games, 3D software (Blender, FreeCAD), and terminals so wheel clicks stay immediate and discrete.
 * **Independent Directions**: Keep natural scrolling on your trackpad while using traditional scrolling on your mouse.
 * **Hardware Control**: Configure DPI, polling rates, and check battery levels directly.
 * **Per-App Profiles**: Apply different scroll speeds and button behaviors automatically depending on the active app.

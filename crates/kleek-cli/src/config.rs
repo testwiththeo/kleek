@@ -22,11 +22,19 @@ pub struct ScrollConfig {
     pub speed: Option<f64>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct AppsConfig {
+    #[serde(default)]
+    pub exclude: Vec<String>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MouseConfigFile {
     pub sensor: SensorConfig,
     pub pointer: Option<PointerConfig>,
     pub scroll: ScrollConfig,
+    #[serde(default)]
+    pub apps: Option<AppsConfig>,
 }
 
 pub const TEMPLATE_DEFAULT: &str = r#"# kleek default profile
@@ -44,6 +52,10 @@ step_size = 30.0
 duration = 0.24
 max_gain = 2.0
 speed = 1.2
+
+[apps]
+# Applications where smooth momentum scrolling is bypassed (direct 1:1 notch)
+exclude = ["blender", "steam", "factorio", "freecad", "kicad"]
 "#;
 
 pub const TEMPLATE_GAMING: &str = r#"# kleek esports / gaming profile
@@ -78,6 +90,10 @@ step_size = 28.0
 duration = 0.22
 max_gain = 1.8
 speed = 1.15
+
+[apps]
+# Applications where smooth momentum scrolling is bypassed (direct 1:1 notch)
+exclude = ["blender", "steam", "factorio", "freecad", "kicad"]
 "#;
 
 pub fn get_template_content(name: &str) -> Option<&'static str> {

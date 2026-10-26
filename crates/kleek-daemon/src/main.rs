@@ -26,6 +26,7 @@ async fn main() -> Result<()> {
     let (tx_scroll, rx_scroll) = mpsc::channel(256);
 
     let physics_config = load_startup_scroll_config();
+    let app_filter = load_startup_app_filter();
     info!(
         "Loaded smooth scroll config: step_size={}, duration={}s, speed={}x, max_gain={}x",
         physics_config.step_size,
@@ -35,7 +36,7 @@ async fn main() -> Result<()> {
     );
 
     // Spawn 120Hz smooth scroll physics runner
-    let _scroll_handle = ScrollService::spawn(rx_scroll, virtual_mouse, physics_config);
+    let _scroll_handle = ScrollService::spawn(rx_scroll, virtual_mouse, physics_config, app_filter);
     info!("Smooth scroll 120Hz physics loop active.");
 
     // Detect and intercept hardware mice with modifier key tracker
@@ -91,4 +92,30 @@ fn load_startup_scroll_config() -> kleek_daemon::physics::ScrollPhysicsConfig {
         }
     }
     config
+}
+
+fn load_startup_app_filter() -> kleek_daemon::app_filter::AppFilter {
+    let mut excluded = Vec::new();
+    if let Some(home) = std::env::var_os("HOME").map(std::path::PathBuf::from) {
+        let cfg_path = home.join(".config").join("kleek").join("config.toml");
+        if let Ok(content) = std::fs::read_to_string(cfg_path) {
+            if let Ok(val) = content.parse::<toml::Value>() {
+                if let Some(apps) = val.get("apps") {
+                    if let Some(arr) = apps.get("exclude").and_then(|v| v.as_array()) {
+                        for item in arr {
+                            if let Some(s) = item.as_str() {
+                                excluded.push(s.to_string());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if excluded.is_empty() {
+        kleek_daemon::app_filter::AppFilter::default()
+    } else {
+        kleek_daemon::app_filter::AppFilter::new(excluded)
+    }
 }

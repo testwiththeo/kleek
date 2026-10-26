@@ -7,10 +7,38 @@ use std::time::Instant;
 use tokio::sync::mpsc;
 use tracing::{debug, info, warn};
 
+pub fn is_touchpad_device(dev: &Device) -> bool {
+    let name = dev.name().unwrap_or("").to_lowercase();
+    if name.contains("touchpad")
+        || name.contains("trackpad")
+        || name.contains("glidepoint")
+        || name.contains("synaptics")
+        || name.contains("alps")
+        || name.contains("elan")
+    {
+        return true;
+    }
+
+    let props = dev.properties();
+    if props.contains(evdev::PropType::BUTTONPAD)
+        || props.contains(evdev::PropType::SEMI_MT)
+        || props.contains(evdev::PropType::TOPBUTTONPAD)
+    {
+        return true;
+    }
+
+    false
+}
+
 pub fn is_mouse_device(dev: &Device) -> bool {
     let name = dev.name().unwrap_or("");
     // Skip our own virtual mouse to prevent event loops!
     if name.contains("kleek Virtual") {
+        return false;
+    }
+
+    // Ignore laptop touchpads so built-in gestures remain pure libinput
+    if is_touchpad_device(dev) {
         return false;
     }
 

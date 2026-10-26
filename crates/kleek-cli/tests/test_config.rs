@@ -14,6 +14,8 @@ fn test_default_template_content() {
         Some("flat".into())
     );
     assert!(parsed.scroll.smooth);
+    assert!(parsed.apps.is_some());
+    assert!(parsed.apps.unwrap().exclude.contains(&"blender".into()));
 }
 
 #[test]

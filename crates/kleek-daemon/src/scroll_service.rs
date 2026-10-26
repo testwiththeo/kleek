@@ -19,6 +19,7 @@ impl ScrollService {
         mut rx: mpsc::Receiver<ScrollImpulse>,
         mut virtual_mouse: VirtualMouse,
         config: ScrollPhysicsConfig,
+        app_filter: crate::app_filter::AppFilter,
     ) -> JoinHandle<Result<()>> {
         tokio::spawn(async move {
             let mut v_accumulator = ScrollAccumulator::new(config.clone());
@@ -28,7 +29,16 @@ impl ScrollService {
             loop {
                 tokio::select! {
                     Some(impulse) = rx.recv() => {
-                        if impulse.modifiers.shift {
+                        if app_filter.is_excluded() {
+                            // Excluded app active (e.g. game, CAD, terminal): bypass smooth momentum gliding!
+                            // Emit immediate discrete notch 1:1
+                            let units = (impulse.direction * 120.0) as i32;
+                            if impulse.modifiers.shift {
+                                let _ = virtual_mouse.emit_hscroll_hi_res(units);
+                            } else {
+                                let _ = virtual_mouse.emit_scroll_hi_res(units);
+                            }
+                        } else if impulse.modifiers.shift {
                             // Shift + Scroll -> Convert vertical wheel impulse into smooth horizontal scroll
                             h_accumulator.inject_impulse(impulse.direction, impulse.interval_ms, impulse.modifiers);
                         } else {

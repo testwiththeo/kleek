@@ -1,3 +1,4 @@
+pub mod app_filter;
 pub mod dbus;
 pub mod interceptor;
 pub mod modifier;
