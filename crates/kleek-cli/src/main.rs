@@ -34,6 +34,12 @@ pub enum Commands {
     },
     /// View connected device status
     Status,
+    /// Check and install the latest updates from GitHub Releases
+    Update {
+        /// Check for updates without installing
+        #[arg(long)]
+        check: bool,
+    },
 }
 
 #[proxy(
@@ -149,6 +155,97 @@ async fn main() -> Result<()> {
             match proxy.get_dpi().await {
                 Ok(dpi) => println!("Daemon state: connected (active DPI: {})", dpi),
                 Err(_) => println!("Daemon state: offline"),
+            }
+        }
+        Commands::Update { check } => {
+            println!("{} Checking for updates on GitHub...", "->".cyan().bold());
+            let current_version = env!("CARGO_PKG_VERSION");
+            let releases_url = "https://api.github.com/repos/testwiththeo/kleek/releases/latest";
+
+            // Run curl in child process to avoid external heavy HTTP crate dependencies
+            let output = std::process::Command::new("curl")
+                .arg("-fsSL")
+                .arg("-H")
+                .arg("User-Agent: kleekctl")
+                .arg(releases_url)
+                .output();
+
+            match output {
+                Ok(res) if res.status.success() => {
+                    let payload = String::from_utf8_lossy(&res.stdout);
+                    if let Ok(val) = serde_json::from_str::<serde_json::Value>(&payload) {
+                        let tag = val.get("tag_name").and_then(|t| t.as_str()).unwrap_or("");
+                        if kleek_cli::update::is_update_available(current_version, tag) {
+                            println!(
+                                "{} New version {} available! (Current: {})",
+                                "★".yellow().bold(),
+                                tag.green().bold(),
+                                current_version.dimmed()
+                            );
+
+                            if check {
+                                return Ok(());
+                            }
+
+                            if let Ok(deb_url) = kleek_cli::update::parse_deb_download_url(&payload)
+                            {
+                                println!("{} Downloading {}", "->".cyan().bold(), deb_url);
+                                let tmp_deb = "/tmp/kleek_latest.deb";
+                                let dl = std::process::Command::new("curl")
+                                    .arg("-fSL")
+                                    .arg("-o")
+                                    .arg(tmp_deb)
+                                    .arg(&deb_url)
+                                    .status();
+
+                                if let Ok(s) = dl {
+                                    if s.success() {
+                                        println!("{} Installing package...", "->".cyan().bold());
+                                        let install = std::process::Command::new("sudo")
+                                            .arg("dpkg")
+                                            .arg("-i")
+                                            .arg(tmp_deb)
+                                            .status();
+
+                                        if let Ok(ins) = install {
+                                            if ins.success() {
+                                                let _ = std::process::Command::new("systemctl")
+                                                    .arg("--user")
+                                                    .arg("restart")
+                                                    .arg("kleek")
+                                                    .status();
+                                                println!(
+                                                    "{} Successfully updated to {}!",
+                                                    "✓".green().bold(),
+                                                    tag.green()
+                                                );
+                                                return Ok(());
+                                            }
+                                        }
+                                        eprintln!(
+                                            "{} Installation failed. Try running: sudo dpkg -i {}",
+                                            "Error:".red().bold(),
+                                            tmp_deb
+                                        );
+                                    }
+                                }
+                            }
+                        } else {
+                            println!(
+                                "{} kleek is already up to date (version {}).",
+                                "✓".green().bold(),
+                                current_version
+                            );
+                        }
+                    }
+                }
+                _ => {
+                    println!(
+                        "{} kleek is running version {}. (Unable to reach GitHub for update check)",
+                        "->".cyan().bold(),
+                        current_version
+                    );
+                }
             }
         }
     }

@@ -1,3 +1,5 @@
+pub mod update;
+
 use clap::{Parser, Subcommand};
 
 #[derive(Parser, Debug)]
@@ -21,4 +23,10 @@ pub enum Commands {
         smooth: Option<bool>,
     },
     Status,
+    /// Check and install the latest updates from GitHub Releases
+    Update {
+        /// Check for updates without installing
+        #[arg(long)]
+        check: bool,
+    },
 }

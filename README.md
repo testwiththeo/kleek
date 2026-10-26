@@ -56,6 +56,9 @@ kleekctl rate 1000
 
 # Toggle smooth scrolling
 kleekctl scroll --smooth on
+
+# Check and update to latest release
+kleekctl update
 ```
 
 ## Platform Support
