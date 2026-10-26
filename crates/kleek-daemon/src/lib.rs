@@ -1,4 +1,5 @@
 pub mod dbus;
+pub mod interceptor;
 pub mod physics;
 pub mod scroll_service;
 pub mod uinput;

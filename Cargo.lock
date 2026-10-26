@@ -600,6 +600,7 @@ name = "kleek-daemon"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "evdev",
  "kleek-driver",
  "kleek-proto",
  "serde",
