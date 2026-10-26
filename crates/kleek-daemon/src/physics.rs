@@ -39,8 +39,20 @@ impl ScrollAccumulator {
         }
     }
 
-    pub fn inject_impulse(&mut self, direction: f64, consecutive_interval_ms: u64) {
-        let gain = if consecutive_interval_ms < 50 {
+    pub fn inject_impulse(
+        &mut self,
+        direction: f64,
+        consecutive_interval_ms: u64,
+        modifiers: crate::modifier::ModifierState,
+    ) {
+        if modifiers.ctrl {
+            // Controlled Zoom: clamp momentum to discrete single step to prevent runaway zoom
+            let impulse = direction * self.config.step_size * self.damping_factor * 1.0;
+            self.velocity = impulse;
+            return;
+        }
+
+        let mut gain = if consecutive_interval_ms < 50 {
             self.config.max_gain
         } else if consecutive_interval_ms < 100 {
             1.35
@@ -49,6 +61,11 @@ impl ScrollAccumulator {
         } else {
             1.0
         };
+
+        if modifiers.alt {
+            // Precision Mode: micro speed (0.3x) for fine inspection
+            gain *= 0.30;
+        }
 
         // Controlled 1:1 speed with smooth fluid decay for productivity
         let impulse =
@@ -90,7 +107,7 @@ mod tests {
     #[test]
     fn test_scroll_physics_decay() {
         let mut acc = ScrollAccumulator::new(ScrollPhysicsConfig::default());
-        acc.inject_impulse(1.0, 200);
+        acc.inject_impulse(1.0, 200, crate::modifier::ModifierState::default());
 
         assert!(acc.is_active());
 
@@ -101,5 +118,33 @@ mod tests {
 
         assert!(!acc.is_active());
         assert!(total_emitted > 0);
+    }
+
+    #[test]
+    fn test_precision_mode_alt_modifier() {
+        let mut normal_acc = ScrollAccumulator::new(ScrollPhysicsConfig::default());
+        normal_acc.inject_impulse(1.0, 150, crate::modifier::ModifierState::default());
+
+        let mut precision_acc = ScrollAccumulator::new(ScrollPhysicsConfig::default());
+        let precision_mod = crate::modifier::ModifierState {
+            alt: true,
+            ..Default::default()
+        };
+        precision_acc.inject_impulse(1.0, 150, precision_mod);
+
+        assert!(precision_acc.velocity < normal_acc.velocity);
+        assert!((precision_acc.velocity / normal_acc.velocity - 0.30).abs() < 0.05);
+    }
+
+    #[test]
+    fn test_controlled_zoom_ctrl_modifier() {
+        let mut ctrl_acc = ScrollAccumulator::new(ScrollPhysicsConfig::default());
+        let ctrl_mod = crate::modifier::ModifierState {
+            ctrl: true,
+            ..Default::default()
+        };
+        ctrl_acc.inject_impulse(1.0, 150, ctrl_mod);
+
+        assert!(ctrl_acc.is_active());
     }
 }

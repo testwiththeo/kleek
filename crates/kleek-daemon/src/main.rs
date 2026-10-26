@@ -38,12 +38,17 @@ async fn main() -> Result<()> {
     let _scroll_handle = ScrollService::spawn(rx_scroll, virtual_mouse, physics_config);
     info!("Smooth scroll 120Hz physics loop active.");
 
-    // Detect and intercept hardware mice
+    // Detect and intercept hardware mice with modifier key tracker
+    let modifier_tracker = std::sync::Arc::new(kleek_daemon::modifier::ModifierTracker::new());
     let mice = scan_mouse_event_nodes();
     info!("Found {} hardware mouse event nodes.", mice.len());
     for mouse_node in mice {
         info!("Spawning scroll interceptor for {:?}", mouse_node);
-        kleek_daemon::interceptor::start_mouse_interceptor(mouse_node, tx_scroll.clone());
+        kleek_daemon::interceptor::start_mouse_interceptor(
+            mouse_node,
+            tx_scroll.clone(),
+            modifier_tracker.clone(),
+        );
     }
 
     // Register D-Bus IPC endpoint

@@ -1,6 +1,8 @@
+use crate::modifier::ModifierTracker;
 use anyhow::Result;
 use evdev::{Device, RelativeAxisType};
 use std::path::PathBuf;
+use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::mpsc;
 use tracing::{debug, info, warn};
@@ -42,6 +44,7 @@ pub fn scan_mouse_event_nodes() -> Vec<PathBuf> {
 pub fn start_mouse_interceptor(
     path: PathBuf,
     tx: mpsc::Sender<crate::scroll_service::ScrollImpulse>,
+    modifier_tracker: Arc<ModifierTracker>,
 ) -> tokio::task::JoinHandle<Result<()>> {
     tokio::task::spawn_blocking(move || {
         let mut dev = match Device::open(&path) {
@@ -69,13 +72,15 @@ pub fn start_mouse_interceptor(
                                     now.duration_since(last_event_time).as_millis() as u64;
                                 last_event_time = now;
 
+                                let modifiers = modifier_tracker.current_modifiers();
                                 debug!(
-                                    "Hardware wheel event: value={}, interval={}ms",
-                                    value, interval_ms
+                                    "Hardware wheel event: value={}, interval={}ms, modifiers={:?}",
+                                    value, interval_ms, modifiers
                                 );
                                 let impulse = crate::scroll_service::ScrollImpulse {
                                     direction: value as f64,
                                     interval_ms: interval_ms.max(1),
+                                    modifiers,
                                 };
                                 let _ = tx.blocking_send(impulse);
                             }

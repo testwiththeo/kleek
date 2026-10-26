@@ -12,6 +12,10 @@ The mouse companion that gets out of your way.
 ## Features
 
 * **Natural Scrolling**: Smooths out discrete wheel clicks with fluid, momentum-based scrolling.
+* **Modifier Key Actions**:
+  - `Shift` + Scroll: Automatically converts vertical wheel rolls into smooth horizontal scrolling (`REL_HWHEEL_HI_RES`).
+  - `Alt` + Scroll: Precision mode (0.3× micro speed) for fine navigation and technical reading.
+  - `Ctrl` + Scroll: Controlled zoom increments without erratic runaway momentum.
 * **Independent Directions**: Keep natural scrolling on your trackpad while using traditional scrolling on your mouse.
 * **Hardware Control**: Configure DPI, polling rates, and check battery levels directly.
 * **Per-App Profiles**: Apply different scroll speeds and button behaviors automatically depending on the active app.

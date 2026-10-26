@@ -28,6 +28,8 @@ impl VirtualMouseBuilder {
         let mut rel_axes = AttributeSet::<RelativeAxisType>::new();
         rel_axes.insert(RelativeAxisType::REL_WHEEL);
         rel_axes.insert(RelativeAxisType::REL_WHEEL_HI_RES);
+        rel_axes.insert(RelativeAxisType::REL_HWHEEL);
+        rel_axes.insert(RelativeAxisType::REL_HWHEEL_HI_RES);
 
         let device = evdev::uinput::VirtualDeviceBuilder::new()
             .context("Failed to initialize virtual device builder")?
@@ -85,6 +87,31 @@ impl VirtualMouse {
             } else {
                 dev.emit(&[ev_hires])
                     .context("Failed to emit high-res wheel event to /dev/uinput")?;
+            }
+        }
+        Ok(())
+    }
+
+    pub fn emit_hscroll_hi_res(&mut self, units: i32) -> Result<()> {
+        if let Some(ref mut dev) = self.device {
+            let ev_hires = InputEvent::new(
+                EventType::RELATIVE,
+                RelativeAxisType::REL_HWHEEL_HI_RES.0,
+                units,
+            );
+            // Conventional discrete step: 120 units = 1 notch
+            let discrete_units = units / 120;
+            if discrete_units != 0 {
+                let ev_discrete = InputEvent::new(
+                    EventType::RELATIVE,
+                    RelativeAxisType::REL_HWHEEL.0,
+                    discrete_units,
+                );
+                dev.emit(&[ev_hires, ev_discrete])
+                    .context("Failed to emit horizontal wheel events to /dev/uinput")?;
+            } else {
+                dev.emit(&[ev_hires])
+                    .context("Failed to emit horizontal high-res wheel event to /dev/uinput")?;
             }
         }
         Ok(())
