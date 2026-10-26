@@ -1,14 +1,13 @@
 [Unit]
 Description=kleek mouse companion daemon
 Documentation=https://github.com/testwiththeo/kleek
-PartOf=graphical-session.target
-After=graphical-session.target
 
 [Service]
 Type=simple
 ExecStart=/usr/bin/kleek-daemon
-Restart=on-failure
-RestartSec=3s
+Restart=always
+RestartSec=2s
+Environment=RUST_LOG=info
 
 [Install]
 WantedBy=default.target

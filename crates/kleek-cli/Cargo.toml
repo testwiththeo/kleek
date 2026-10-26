@@ -43,6 +43,7 @@ assets = [
     ["../../target/release/kleek-daemon", "usr/bin/kleek-daemon", "755"],
     ["../../udev/99-kleek.rules", "lib/udev/rules.d/99-kleek.rules", "644"],
     ["../../systemd/kleek.service", "usr/lib/systemd/user/kleek.service", "644"],
+    ["../../xdg/kleek.desktop", "etc/xdg/autostart/kleek.desktop", "644"],
     ["../../templates/default.toml", "usr/share/kleek/templates/default.toml", "644"],
     ["../../templates/gaming.toml", "usr/share/kleek/templates/gaming.toml", "644"],
     ["../../templates/productivity-mac-like.toml", "usr/share/kleek/templates/productivity.toml", "644"],

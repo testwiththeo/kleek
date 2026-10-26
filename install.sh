@@ -54,7 +54,14 @@ fi
 if command -v systemctl >/dev/null 2>&1; then
     echo "-> Starting user daemon..."
     systemctl --user daemon-reload || true
+    systemctl --user reset-failed kleek.service 2>/dev/null || true
     systemctl --user enable --now kleek.service || true
+fi
+
+# Ensure user autostart entry is active
+if [ -f "/etc/xdg/autostart/kleek.desktop" ]; then
+    mkdir -p "$HOME/.config/autostart"
+    cp -f "/etc/xdg/autostart/kleek.desktop" "$HOME/.config/autostart/" 2>/dev/null || true
 fi
 
 echo ""

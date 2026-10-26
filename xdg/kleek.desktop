@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=kleek
+Comment=Lightweight mouse companion daemon
+Exec=/usr/bin/kleek-daemon
+Terminal=false
+Categories=Utility;
+X-GNOME-Autostart-enabled=true
+StartupNotify=false
