@@ -1,0 +1,14 @@
+# kleek productivity profile
+# Mac-like fluid inertia scrolling with high-resolution steps
+
+[sensor]
+dpi = 1200
+polling_rate = 500
+
+[scroll]
+# Ultra-smooth glide physics
+smooth = true
+natural_direction = true
+step_size = 28.0
+duration = 0.35
+max_gain = 3.2

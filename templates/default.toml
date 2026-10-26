@@ -1,0 +1,20 @@
+# kleek default profile
+# Location: ~/.config/kleek/config.toml
+
+[sensor]
+# Hardware DPI resolution
+dpi = 1600
+# Polling rate in Hz (125, 250, 500, 1000)
+polling_rate = 1000
+
+[scroll]
+# Enable fluid, momentum-based scrolling
+smooth = true
+# Invert vertical scroll direction (natural macOS style)
+natural_direction = true
+# Virtual scroll speed step size
+step_size = 40.0
+# Momentum decay duration in seconds (0.1 - 0.5)
+duration = 0.25
+# Acceleration multiplier under rapid flicking
+max_gain = 2.5

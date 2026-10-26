@@ -1,0 +1,16 @@
+# kleek esports / gaming profile
+# Optimized for zero latency and raw 1:1 sensor input
+
+[sensor]
+# Esports standard DPI
+dpi = 800
+# Maximum responsive polling rate
+polling_rate = 1000
+
+[scroll]
+# Disable momentum smoothing for crisp weapon switching and jump binds
+smooth = false
+natural_direction = false
+step_size = 120.0
+duration = 0.05
+max_gain = 1.0
