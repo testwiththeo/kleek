@@ -20,12 +20,23 @@ The mouse companion that gets out of your way.
 
 ## Quick Start
 
+### Debian / Ubuntu (.deb)
+
+Download the latest `.deb` package from [Releases](https://github.com/testwiththeo/kleek/releases) and install it:
+
+```bash
+sudo dpkg -i kleek_*.deb
+systemctl --user start kleek
+```
+
 ### Build from Source
+
+Run the automated installer script:
 
 ```bash
 git clone https://github.com/testwiththeo/kleek.git
 cd kleek
-cargo build --release
+./install.sh
 ```
 
 ### Basic Usage
