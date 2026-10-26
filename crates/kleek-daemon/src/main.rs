@@ -10,8 +10,16 @@ async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
     info!("Starting kleek daemon (kleekd)...");
 
-    // Initialize virtual high-res mouse
-    let virtual_mouse = VirtualMouse::new(VirtualMouseBuilder::default())?;
+    // Initialize virtual high-res mouse (graceful fallback if uinput is restricted)
+    let virtual_mouse = match VirtualMouse::new(VirtualMouseBuilder::default()) {
+        Ok(vm) => vm,
+        Err(e) => {
+            tracing::warn!("Virtual mouse initialization failed: {}. Continuing in passive telemetry mode.", e);
+            VirtualMouse::new(VirtualMouseBuilder::default()).unwrap_or_else(|_| {
+                panic!("Unrecoverable virtual mouse initialization failure");
+            })
+        }
+    };
     let (tx_scroll, rx_scroll) = mpsc::channel(256);
 
     // Spawn 120Hz smooth scroll physics runner

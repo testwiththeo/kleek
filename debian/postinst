@@ -9,6 +9,11 @@ case "$1" in
             /usr/bin/udevadm trigger || true
         fi
 
+        # Ensure uinput kernel module is loaded
+        if command -v modprobe >/dev/null 2>&1; then
+            modprobe uinput 2>/dev/null || true
+        fi
+
         # Reload systemd system daemon if present
         if [ -d /run/systemd/system ]; then
             systemctl daemon-reload || true

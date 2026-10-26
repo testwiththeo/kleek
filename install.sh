@@ -54,7 +54,15 @@ fi
 if command -v systemctl >/dev/null 2>&1; then
     echo "-> Starting user daemon..."
     systemctl --user daemon-reload || true
-    systemctl --user enable --now kleek.service 2>/dev/null || true
+    systemctl --user enable --now kleek.service || true
+fi
+
+echo ""
+echo "Checking daemon status..."
+if command -v kleekctl >/dev/null 2>&1; then
+    kleekctl status || true
+elif [ -f "$HOME/.cargo/bin/kleekctl" ]; then
+    "$HOME/.cargo/bin/kleekctl" status || true
 fi
 
 echo ""
