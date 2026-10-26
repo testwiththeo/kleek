@@ -188,6 +188,105 @@ async fn main() -> Result<()> {
                 }
             }
         }
+        Commands::Touchpad {
+            natural,
+            tap_to_click,
+            mac_preset,
+        } => {
+            let config_dir =
+                dirs_next_config_dir().unwrap_or_else(|| std::path::PathBuf::from("/tmp"));
+            let cfg_path = config_dir.join("kleek").join("config.toml");
+            let mut cfg = kleek_cli::config::MouseConfigFile::load_or_default(&cfg_path);
+            let mut tp = cfg.touchpad.clone().unwrap_or_default();
+
+            if mac_preset {
+                tp.natural_scroll = true;
+                tp.tap_to_click = true;
+                tp.disable_while_typing = true;
+                let _ = kleek_cli::desktop::apply_desktop_touchpad(&tp);
+                cfg.touchpad = Some(tp);
+                let _ = cfg.save(&cfg_path);
+                println!(
+                    "{} Applied macOS Trackpad Preset: Natural scrolling and Tap-to-click enabled.",
+                    "✓".green().bold()
+                );
+                return Ok(());
+            }
+
+            let mut modified = false;
+            if let Some(n) = natural {
+                tp.natural_scroll = n;
+                modified = true;
+                println!(
+                    "{} Touchpad natural scrolling {}",
+                    "->".cyan().bold(),
+                    if n {
+                        "enabled (macOS style)".green()
+                    } else {
+                        "disabled (traditional)".yellow()
+                    }
+                );
+            }
+            if let Some(t) = tap_to_click {
+                tp.tap_to_click = t;
+                modified = true;
+                println!(
+                    "{} Touchpad tap-to-click {}",
+                    "->".cyan().bold(),
+                    if t {
+                        "enabled".green()
+                    } else {
+                        "disabled".yellow()
+                    }
+                );
+            }
+
+            if modified {
+                let _ = kleek_cli::desktop::apply_desktop_touchpad(&tp);
+                cfg.touchpad = Some(tp);
+                let _ = cfg.save(&cfg_path);
+            } else {
+                println!("{}", "kleek Device Independence Status:".bold());
+                println!("  * External Mouse:");
+                println!(
+                    "      Smooth Scrolling: {}",
+                    if cfg.scroll.smooth {
+                        "Enabled (Cubic-Bezier glide)".green()
+                    } else {
+                        "Disabled".yellow()
+                    }
+                );
+                println!(
+                    "      Scroll Direction: {}",
+                    if cfg.scroll.natural_direction {
+                        "Natural (macOS style)".cyan()
+                    } else {
+                        "Traditional (Standard)".cyan()
+                    }
+                );
+                println!("  * Built-in Touchpad (Isolated):");
+                println!(
+                    "      Passthrough:      {}",
+                    "100% Native (libinput gestures active)".green()
+                );
+                println!(
+                    "      Natural Scroll:   {}",
+                    if tp.natural_scroll {
+                        "Enabled (macOS style)".green()
+                    } else {
+                        "Disabled".yellow()
+                    }
+                );
+                println!(
+                    "      Tap-to-click:     {}",
+                    if tp.tap_to_click {
+                        "Enabled".green()
+                    } else {
+                        "Disabled".yellow()
+                    }
+                );
+            }
+        }
         Commands::Status => {
             println!("{}", "kleek daemon client (v0.1.0)".bold());
             match proxy.get_dpi().await {

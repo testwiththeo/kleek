@@ -47,4 +47,15 @@ fn test_cli_parsing_subcommands() {
             }
         }
     );
+
+    let args_tp = vec!["kleekctl", "touchpad", "--mac-preset"];
+    let parsed_tp = Cli::try_parse_from(args_tp).unwrap();
+    assert_eq!(
+        parsed_tp.command,
+        Commands::Touchpad {
+            natural: None,
+            tap_to_click: None,
+            mac_preset: true,
+        }
+    );
 }

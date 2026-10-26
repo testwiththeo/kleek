@@ -31,6 +31,18 @@ pub enum Commands {
         #[command(subcommand)]
         action: AppsAction,
     },
+    /// Configure touchpad settings (independent from mouse)
+    Touchpad {
+        /// Toggle natural scrolling on touchpad (on/off)
+        #[arg(long)]
+        natural: Option<bool>,
+        /// Toggle tap-to-click (on/off)
+        #[arg(long)]
+        tap_to_click: Option<bool>,
+        /// Apply recommended macOS trackpad preset (natural on, tap-to-click on)
+        #[arg(long)]
+        mac_preset: bool,
+    },
     Status,
     /// Check and install the latest updates from GitHub Releases
     Update {

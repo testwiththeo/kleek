@@ -77,6 +77,11 @@ kleekctl apps list
 kleekctl apps add blender
 kleekctl apps remove steam
 
+# Configure Touchpad independently (Mac-like trackpad experience)
+kleekctl touchpad                 # View mouse vs touchpad independence status
+kleekctl touchpad --mac-preset    # Enable natural scrolling & tap-to-click
+kleekctl touchpad --natural on    # Independent natural scroll toggle
+
 # Manage mouse profiles and templates
 kleekctl config list
 kleekctl config init gaming       # Generates ~/.config/kleek/config.toml

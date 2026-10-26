@@ -28,6 +28,33 @@ pub struct AppsConfig {
     pub exclude: Vec<String>,
 }
 
+fn default_true() -> bool {
+    true
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TouchpadConfig {
+    #[serde(default = "default_true")]
+    pub natural_scroll: bool,
+    #[serde(default = "default_true")]
+    pub tap_to_click: bool,
+    #[serde(default = "default_true")]
+    pub disable_while_typing: bool,
+    #[serde(default)]
+    pub speed: Option<f64>,
+}
+
+impl Default for TouchpadConfig {
+    fn default() -> Self {
+        Self {
+            natural_scroll: true,
+            tap_to_click: true,
+            disable_while_typing: true,
+            speed: None,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MouseConfigFile {
     pub sensor: SensorConfig,
@@ -35,6 +62,8 @@ pub struct MouseConfigFile {
     pub scroll: ScrollConfig,
     #[serde(default)]
     pub apps: Option<AppsConfig>,
+    #[serde(default)]
+    pub touchpad: Option<TouchpadConfig>,
 }
 
 pub const TEMPLATE_DEFAULT: &str = r#"# kleek default profile
@@ -56,6 +85,12 @@ speed = 1.2
 [apps]
 # Applications where smooth momentum scrolling is bypassed (direct 1:1 notch)
 exclude = ["blender", "steam", "factorio", "freecad", "kicad"]
+
+[touchpad]
+# Mac-like independent touchpad settings
+natural_scroll = true
+tap_to_click = true
+disable_while_typing = true
 "#;
 
 pub const TEMPLATE_GAMING: &str = r#"# kleek esports / gaming profile
@@ -94,6 +129,12 @@ speed = 1.15
 [apps]
 # Applications where smooth momentum scrolling is bypassed (direct 1:1 notch)
 exclude = ["blender", "steam", "factorio", "freecad", "kicad"]
+
+[touchpad]
+# Mac-like independent touchpad settings
+natural_scroll = true
+tap_to_click = true
+disable_while_typing = true
 "#;
 
 pub fn get_template_content(name: &str) -> Option<&'static str> {
