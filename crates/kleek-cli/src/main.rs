@@ -40,6 +40,31 @@ pub enum Commands {
         #[arg(long)]
         check: bool,
     },
+    /// Manage mouse profiles and configuration templates
+    Config {
+        #[command(subcommand)]
+        action: ConfigAction,
+    },
+}
+
+#[derive(Subcommand, Debug, PartialEq, Eq)]
+pub enum ConfigAction {
+    /// Initialize config file (~/.config/kleek/config.toml) with a template
+    Init {
+        /// Template name (default, gaming, productivity)
+        #[arg(default_value = "default")]
+        template: String,
+        /// Overwrite if config already exists
+        #[arg(long)]
+        force: bool,
+    },
+    /// List available configuration templates
+    List,
+    /// Apply an existing template directly to daemon
+    Apply {
+        /// Template name (default, gaming, productivity)
+        template: String,
+    },
 }
 
 #[proxy(
@@ -248,7 +273,78 @@ async fn main() -> Result<()> {
                 }
             }
         }
+        Commands::Config { action } => {
+            match action {
+                ConfigAction::List => {
+                    println!("{}", "Available mouse profile templates:".bold());
+                    println!(
+                        "  * {} - Balanced daily usage (1600 DPI, smooth scroll on)",
+                        "default".cyan().bold()
+                    );
+                    println!(
+                        "  * {}  - Esports 1:1 input (800 DPI, 1000Hz, smooth scroll off)",
+                        "gaming".cyan().bold()
+                    );
+                    println!(
+                        "  * {} - Mac-style inertia glide (1200 DPI, natural scroll)",
+                        "productivity".cyan().bold()
+                    );
+                }
+                ConfigAction::Init { template, force } => {
+                    if let Some(content) = kleek_cli::config::get_template_content(&template) {
+                        if let Some(config_dir) = dirs_next_config_dir() {
+                            let kleek_dir = config_dir.join("kleek");
+                            let cfg_path = kleek_dir.join("config.toml");
+                            if cfg_path.exists() && !force {
+                                eprintln!("{} Config file already exists at {}. Pass --force to overwrite.", "Warning:".yellow().bold(), cfg_path.display());
+                                return Ok(());
+                            }
+                            let _ = std::fs::create_dir_all(&kleek_dir);
+                            if std::fs::write(&cfg_path, content).is_ok() {
+                                println!(
+                                    "{} Created template '{}' at {}",
+                                    "✓".green().bold(),
+                                    template.yellow(),
+                                    cfg_path.display()
+                                );
+                            }
+                        }
+                    } else {
+                        eprintln!(
+                            "{} Unknown template '{}'. Run 'kleekctl config list' to see options.",
+                            "Error:".red().bold(),
+                            template
+                        );
+                    }
+                }
+                ConfigAction::Apply { template } => {
+                    if let Some(content) = kleek_cli::config::get_template_content(&template) {
+                        if let Ok(cfg) =
+                            toml::from_str::<kleek_cli::config::MouseConfigFile>(content)
+                        {
+                            let _ = proxy.set_dpi(cfg.sensor.dpi).await;
+                            let _ = proxy.set_smooth_scroll(cfg.scroll.smooth).await;
+                            println!(
+                                "{} Applied profile '{}' ({} DPI, smooth scroll: {})",
+                                "✓".green().bold(),
+                                template.yellow(),
+                                cfg.sensor.dpi,
+                                cfg.scroll.smooth
+                            );
+                        }
+                    } else {
+                        eprintln!("{} Unknown template '{}'.", "Error:".red().bold(), template);
+                    }
+                }
+            }
+        }
     }
 
     Ok(())
+}
+
+fn dirs_next_config_dir() -> Option<std::path::PathBuf> {
+    std::env::var_os("XDG_CONFIG_HOME")
+        .map(std::path::PathBuf::from)
+        .or_else(|| std::env::var_os("HOME").map(|h| std::path::PathBuf::from(h).join(".config")))
 }

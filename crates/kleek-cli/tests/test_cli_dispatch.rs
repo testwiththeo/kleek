@@ -14,4 +14,16 @@ fn test_cli_parsing_subcommands() {
     let args_update = vec!["kleekctl", "update", "--check"];
     let parsed_update = Cli::try_parse_from(args_update).unwrap();
     assert_eq!(parsed_update.command, Commands::Update { check: true });
+
+    let args_cfg = vec!["kleekctl", "config", "init", "gaming"];
+    let parsed_cfg = Cli::try_parse_from(args_cfg).unwrap();
+    assert_eq!(
+        parsed_cfg.command,
+        Commands::Config {
+            action: kleek_cli::ConfigAction::Init {
+                template: "gaming".into(),
+                force: false,
+            }
+        }
+    );
 }

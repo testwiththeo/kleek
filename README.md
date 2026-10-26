@@ -65,6 +65,11 @@ kleekctl rate 1000
 # Toggle smooth scrolling
 kleekctl scroll --smooth on
 
+# Manage mouse profiles and templates
+kleekctl config list
+kleekctl config init gaming       # Generates ~/.config/kleek/config.toml
+kleekctl config apply productivity
+
 # Check and update to latest release
 kleekctl update
 ```

@@ -588,8 +588,10 @@ dependencies = [
  "clap",
  "colored",
  "kleek-proto",
+ "serde",
  "serde_json",
  "tokio",
+ "toml",
  "zbus",
 ]
 

@@ -1,0 +1,26 @@
+use kleek_cli::config::{get_template_content, MouseConfigFile};
+
+#[test]
+fn test_default_template_content() {
+    let content = get_template_content("default").unwrap();
+    assert!(content.contains("[sensor]"));
+    assert!(content.contains("dpi = 1600"));
+
+    let parsed: MouseConfigFile = toml::from_str(content).unwrap();
+    assert_eq!(parsed.sensor.dpi, 1600);
+    assert_eq!(parsed.sensor.polling_rate, 1000);
+    assert!(parsed.scroll.smooth);
+}
+
+#[test]
+fn test_gaming_template_content() {
+    let content = get_template_content("gaming").unwrap();
+    let parsed: MouseConfigFile = toml::from_str(content).unwrap();
+    assert_eq!(parsed.sensor.dpi, 800);
+    assert!(!parsed.scroll.smooth);
+}
+
+#[test]
+fn test_unknown_template() {
+    assert!(get_template_content("nonexistent").is_none());
+}
