@@ -38,3 +38,18 @@ jobs:
 
       - name: Run test suite
         run: cargo test --workspace --verbose
+
+      - name: Install cargo-deb
+        run: cargo install cargo-deb --locked
+
+      - name: Build release binaries
+        run: cargo build --release --workspace
+
+      - name: Package .deb artifact
+        run: cargo deb -p kleek-cli --no-build
+
+      - name: Upload Debian package
+        uses: actions/upload-artifact@v4
+        with:
+          name: kleek-debian-x86_64
+          path: target/debian/*.deb
