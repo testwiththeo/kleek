@@ -25,8 +25,17 @@ async fn main() -> Result<()> {
     };
     let (tx_scroll, rx_scroll) = mpsc::channel(256);
 
+    let physics_config = load_startup_scroll_config();
+    info!(
+        "Loaded smooth scroll config: step_size={}, duration={}s, speed={}x, max_gain={}x",
+        physics_config.step_size,
+        physics_config.duration_seconds,
+        physics_config.speed,
+        physics_config.max_gain
+    );
+
     // Spawn 120Hz smooth scroll physics runner
-    let _scroll_handle = ScrollService::spawn(rx_scroll, virtual_mouse);
+    let _scroll_handle = ScrollService::spawn(rx_scroll, virtual_mouse, physics_config);
     info!("Smooth scroll 120Hz physics loop active.");
 
     // Detect and intercept hardware mice
@@ -51,4 +60,30 @@ async fn main() -> Result<()> {
     tokio::signal::ctrl_c().await?;
     info!("Shutting down kleekd.");
     Ok(())
+}
+
+fn load_startup_scroll_config() -> kleek_daemon::physics::ScrollPhysicsConfig {
+    let mut config = kleek_daemon::physics::ScrollPhysicsConfig::default();
+    if let Some(home) = std::env::var_os("HOME").map(std::path::PathBuf::from) {
+        let cfg_path = home.join(".config").join("kleek").join("config.toml");
+        if let Ok(content) = std::fs::read_to_string(cfg_path) {
+            if let Ok(val) = content.parse::<toml::Value>() {
+                if let Some(scroll) = val.get("scroll") {
+                    if let Some(step) = scroll.get("step_size").and_then(|v| v.as_float()) {
+                        config.step_size = step;
+                    }
+                    if let Some(dur) = scroll.get("duration").and_then(|v| v.as_float()) {
+                        config.duration_seconds = dur;
+                    }
+                    if let Some(gain) = scroll.get("max_gain").and_then(|v| v.as_float()) {
+                        config.max_gain = gain;
+                    }
+                    if let Some(spd) = scroll.get("speed").and_then(|v| v.as_float()) {
+                        config.speed = spd;
+                    }
+                }
+            }
+        }
+    }
+    config
 }

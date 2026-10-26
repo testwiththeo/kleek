@@ -18,3 +18,4 @@ natural_direction = false
 step_size = 120.0
 duration = 0.05
 max_gain = 1.0
+speed = 1.0

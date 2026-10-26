@@ -18,6 +18,8 @@ pub struct ScrollConfig {
     pub step_size: f64,
     pub duration: f64,
     pub max_gain: f64,
+    #[serde(default)]
+    pub speed: Option<f64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -38,9 +40,10 @@ accel_profile = "flat"
 [scroll]
 smooth = true
 natural_direction = true
-step_size = 40.0
-duration = 0.25
-max_gain = 2.5
+step_size = 35.0
+duration = 0.42
+max_gain = 3.5
+speed = 3.0
 "#;
 
 pub const TEMPLATE_GAMING: &str = r#"# kleek esports / gaming profile
@@ -57,6 +60,7 @@ natural_direction = false
 step_size = 120.0
 duration = 0.05
 max_gain = 1.0
+speed = 1.0
 "#;
 
 pub const TEMPLATE_PRODUCTIVITY: &str = r#"# kleek productivity profile
@@ -70,9 +74,10 @@ accel_profile = "flat"
 [scroll]
 smooth = true
 natural_direction = true
-step_size = 18.0
-duration = 0.42
-max_gain = 4.0
+step_size = 35.0
+duration = 0.48
+max_gain = 4.8
+speed = 3.6
 "#;
 
 pub fn get_template_content(name: &str) -> Option<&'static str> {

@@ -16,9 +16,10 @@ impl ScrollService {
     pub fn spawn(
         mut rx: mpsc::Receiver<ScrollImpulse>,
         mut virtual_mouse: VirtualMouse,
+        config: ScrollPhysicsConfig,
     ) -> JoinHandle<Result<()>> {
         tokio::spawn(async move {
-            let mut accumulator = ScrollAccumulator::new(ScrollPhysicsConfig::default());
+            let mut accumulator = ScrollAccumulator::new(config);
             let mut interval = tokio::time::interval(Duration::from_micros(8333)); // ~120 Hz
 
             loop {

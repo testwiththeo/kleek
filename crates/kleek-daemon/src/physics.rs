@@ -1,16 +1,19 @@
 #[allow(dead_code)]
+#[derive(Debug, Clone)]
 pub struct ScrollPhysicsConfig {
     pub step_size: f64,
     pub duration_seconds: f64,
     pub max_gain: f64,
+    pub speed: f64,
 }
 
 impl Default for ScrollPhysicsConfig {
     fn default() -> Self {
         Self {
-            step_size: 40.0,
-            duration_seconds: 0.25,
-            max_gain: 2.5,
+            step_size: 35.0,
+            duration_seconds: 0.45,
+            max_gain: 4.8,
+            speed: 3.5,
         }
     }
 }
@@ -37,15 +40,19 @@ impl ScrollAccumulator {
     }
 
     pub fn inject_impulse(&mut self, direction: f64, consecutive_interval_ms: u64) {
-        let gain = if consecutive_interval_ms < 50 {
+        let gain = if consecutive_interval_ms < 45 {
             self.config.max_gain
-        } else if consecutive_interval_ms < 100 {
-            1.5
+        } else if consecutive_interval_ms < 90 {
+            2.4
+        } else if consecutive_interval_ms < 160 {
+            1.6
         } else {
             1.0
         };
 
-        let impulse = direction * self.config.step_size * self.damping_factor * gain;
+        // Mac / Mos style: speed multiplier gives readable travel per notch with fluid decay
+        let impulse =
+            direction * self.config.step_size * self.config.speed * self.damping_factor * gain;
         self.velocity += impulse;
     }
 
