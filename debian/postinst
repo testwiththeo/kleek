@@ -1,0 +1,19 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    configure)
+        # Reload udev rules so non-root users gain immediate access to mouse HID nodes
+        if [ -x /usr/bin/udevadm ]; then
+            /usr/bin/udevadm control --reload-rules || true
+            /usr/bin/udevadm trigger || true
+        fi
+
+        # Reload systemd system daemon if present
+        if [ -d /run/systemd/system ]; then
+            systemctl daemon-reload || true
+        fi
+        ;;
+esac
+
+exit 0

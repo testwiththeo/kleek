@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+    remove|purge)
+        # Stop any active user instances of kleek daemon if systemd user session is accessible
+        if [ -x /usr/bin/systemctl ] && [ -d /run/systemd/system ]; then
+            systemctl --global disable kleek.service 2>/dev/null || true
+        fi
+        ;;
+esac
+
+exit 0

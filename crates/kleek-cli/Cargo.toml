@@ -23,3 +23,23 @@ zbus = { workspace = true }
 tokio = { workspace = true }
 
 [dev-dependencies]
+
+[package.metadata.deb]
+name = "kleek"
+maintainer = "Theodorus Yosia <theodorusyosia15@gmail.com>"
+copyright = "2026 Theodorus Yosia"
+license-file = ["../../LICENSE-MIT", "4"]
+depends = "$auto, libudev1"
+section = "utils"
+priority = "optional"
+extended-description = """\
+A lightweight, userspace mouse companion daemon and CLI for Linux.
+Provides smooth momentum-based scrolling and DPI hardware configuration."""
+assets = [
+    ["../../target/release/kleekctl", "usr/bin/kleekctl", "755"],
+    ["../../target/release/kleek-daemon", "usr/bin/kleek-daemon", "755"],
+    ["../../udev/99-kleek.rules", "lib/udev/rules.d/99-kleek.rules", "644"],
+    ["../../systemd/kleek.service", "usr/lib/systemd/user/kleek.service", "644"],
+    ["../../README.md", "usr/share/doc/kleek/README.md", "644"],
+]
+maintainer-scripts = "../../debian"
