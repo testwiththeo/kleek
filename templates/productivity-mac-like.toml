@@ -2,13 +2,17 @@
 # Mac-like fluid inertia scrolling with high-resolution steps
 
 [sensor]
-dpi = 1200
+# Balanced office sensor tracking for standard optical sensors
+dpi = 1000
 polling_rate = 500
 
 [scroll]
 # Ultra-smooth glide physics
 smooth = true
 natural_direction = true
-step_size = 28.0
-duration = 0.35
-max_gain = 3.2
+# Micro-steps for discrete office mouse notched wheels (eliminates stepping stutters)
+step_size = 18.0
+# Extended deceleration curve for premium gliding feel
+duration = 0.42
+# Adaptive speed multiplier under fast wheel flicking
+max_gain = 4.0

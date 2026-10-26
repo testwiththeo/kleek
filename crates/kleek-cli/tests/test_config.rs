@@ -21,6 +21,10 @@ fn test_gaming_template_content() {
 }
 
 #[test]
-fn test_unknown_template() {
-    assert!(get_template_content("nonexistent").is_none());
+fn test_productivity_template_content() {
+    let content = get_template_content("productivity").unwrap();
+    let parsed: MouseConfigFile = toml::from_str(content).unwrap();
+    assert_eq!(parsed.sensor.dpi, 1000);
+    assert_eq!(parsed.scroll.step_size, 18.0);
+    assert!(parsed.scroll.smooth);
 }

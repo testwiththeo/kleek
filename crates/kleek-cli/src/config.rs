@@ -49,15 +49,15 @@ max_gain = 1.0
 
 pub const TEMPLATE_PRODUCTIVITY: &str = r#"# kleek productivity profile
 [sensor]
-dpi = 1200
+dpi = 1000
 polling_rate = 500
 
 [scroll]
 smooth = true
 natural_direction = true
-step_size = 28.0
-duration = 0.35
-max_gain = 3.2
+step_size = 18.0
+duration = 0.42
+max_gain = 4.0
 "#;
 
 pub fn get_template_content(name: &str) -> Option<&'static str> {
