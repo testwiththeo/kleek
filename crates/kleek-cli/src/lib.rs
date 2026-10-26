@@ -23,6 +23,13 @@ pub enum Commands {
     Scroll {
         #[arg(long)]
         smooth: Option<bool>,
+        #[arg(long)]
+        natural: Option<bool>,
+    },
+    /// Manage application exclusion list
+    Apps {
+        #[command(subcommand)]
+        action: AppsAction,
     },
     Status,
     /// Check and install the latest updates from GitHub Releases
@@ -35,6 +42,22 @@ pub enum Commands {
     Config {
         #[command(subcommand)]
         action: ConfigAction,
+    },
+}
+
+#[derive(Subcommand, Debug, PartialEq, Eq)]
+pub enum AppsAction {
+    /// List all currently excluded applications
+    List,
+    /// Add an application to the exclusion list
+    Add {
+        /// Application name or WM_CLASS (e.g. blender, steam, factorio)
+        name: String,
+    },
+    /// Remove an application from the exclusion list
+    Remove {
+        /// Application name or WM_CLASS to remove
+        name: String,
     },
 }
 

@@ -1,71 +1,8 @@
 use anyhow::Result;
-use clap::{Parser, Subcommand};
+use clap::Parser;
 use colored::*;
+use kleek_cli::{AppsAction, Cli, Commands, ConfigAction};
 use zbus::proxy;
-
-#[derive(Parser, Debug)]
-#[command(name = "kleekctl")]
-#[command(about = "Make your fancy mouse kleek on Linux. Command-line control interface.", long_about = None)]
-#[command(version)]
-pub struct Cli {
-    #[command(subcommand)]
-    pub command: Commands,
-}
-
-#[derive(Subcommand, Debug, PartialEq, Eq)]
-pub enum Commands {
-    /// Get or set mouse DPI
-    Dpi {
-        /// Target DPI value (e.g. 800, 1600, 3200)
-        value: Option<u16>,
-    },
-    /// Query battery level and charging status
-    Battery,
-    /// Set report polling rate in Hz (125 - 8000)
-    Rate {
-        /// Polling rate in Hz
-        hz: u16,
-    },
-    /// Configure smooth scrolling inertia
-    Scroll {
-        /// Toggle smooth scrolling (on/off)
-        #[arg(long)]
-        smooth: Option<bool>,
-    },
-    /// View connected device status
-    Status,
-    /// Check and install the latest updates from GitHub Releases
-    Update {
-        /// Check for updates without installing
-        #[arg(long)]
-        check: bool,
-    },
-    /// Manage mouse profiles and configuration templates
-    Config {
-        #[command(subcommand)]
-        action: ConfigAction,
-    },
-}
-
-#[derive(Subcommand, Debug, PartialEq, Eq)]
-pub enum ConfigAction {
-    /// Initialize config file (~/.config/kleek/config.toml) with a template
-    Init {
-        /// Template name (default, gaming, productivity)
-        #[arg(default_value = "default")]
-        template: String,
-        /// Overwrite if config already exists
-        #[arg(long)]
-        force: bool,
-    },
-    /// List available configuration templates
-    List,
-    /// Apply an existing template directly to daemon
-    Apply {
-        /// Template name (default, gaming, productivity)
-        template: String,
-    },
-}
 
 #[proxy(
     interface = "org.freedesktop.Kleek1.Manager",
@@ -164,7 +101,7 @@ async fn main() -> Result<()> {
                 hz.to_string().yellow()
             );
         }
-        Commands::Scroll { smooth } => {
+        Commands::Scroll { smooth, natural } => {
             if let Some(s) = smooth {
                 let _ = proxy.set_smooth_scroll(s).await;
                 let status = if s {
@@ -173,6 +110,82 @@ async fn main() -> Result<()> {
                     "disabled".red()
                 };
                 println!("{} Smooth scrolling {}", "->".cyan().bold(), status);
+            }
+            if let Some(n) = natural {
+                let _ = kleek_cli::desktop::apply_desktop_natural_scroll(n);
+                if let Some(config_dir) = dirs_next_config_dir() {
+                    let cfg_path = config_dir.join("kleek").join("config.toml");
+                    let mut cfg = kleek_cli::config::MouseConfigFile::load_or_default(&cfg_path);
+                    cfg.scroll.natural_direction = n;
+                    let _ = cfg.save(&cfg_path);
+                }
+                let status = if n {
+                    "enabled (macOS style)".green()
+                } else {
+                    "disabled (traditional style)".yellow()
+                };
+                println!("{} Natural scrolling {}", "->".cyan().bold(), status);
+            }
+        }
+        Commands::Apps { action } => {
+            let config_dir =
+                dirs_next_config_dir().unwrap_or_else(|| std::path::PathBuf::from("/tmp"));
+            let cfg_path = config_dir.join("kleek").join("config.toml");
+            let mut cfg = kleek_cli::config::MouseConfigFile::load_or_default(&cfg_path);
+            let mut apps = cfg.apps.clone().unwrap_or_default();
+
+            match action {
+                AppsAction::List => {
+                    println!(
+                        "{}",
+                        "Excluded applications (bypassing smooth scroll):".bold()
+                    );
+                    if apps.exclude.is_empty() {
+                        println!("  (None configured - all apps use smooth scroll)");
+                    } else {
+                        for app in &apps.exclude {
+                            println!("  * {}", app.cyan());
+                        }
+                    }
+                }
+                AppsAction::Add { name } => {
+                    let lower = name.to_lowercase();
+                    if !apps.exclude.contains(&lower) {
+                        apps.exclude.push(lower);
+                        cfg.apps = Some(apps);
+                        let _ = cfg.save(&cfg_path);
+                        println!(
+                            "{} Added '{}' to exclusion list",
+                            "✓".green().bold(),
+                            name.yellow()
+                        );
+                    } else {
+                        println!(
+                            "{} '{}' is already in exclusion list",
+                            "ℹ".blue(),
+                            name.yellow()
+                        );
+                    }
+                }
+                AppsAction::Remove { name } => {
+                    let lower = name.to_lowercase();
+                    if let Some(pos) = apps.exclude.iter().position(|x| x == &lower) {
+                        apps.exclude.remove(pos);
+                        cfg.apps = Some(apps);
+                        let _ = cfg.save(&cfg_path);
+                        println!(
+                            "{} Removed '{}' from exclusion list",
+                            "✓".green().bold(),
+                            name.yellow()
+                        );
+                    } else {
+                        eprintln!(
+                            "{} '{}' not found in exclusion list",
+                            "Warning:".yellow().bold(),
+                            name
+                        );
+                    }
+                }
             }
         }
         Commands::Status => {

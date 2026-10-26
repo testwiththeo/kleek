@@ -104,3 +104,23 @@ pub fn get_template_content(name: &str) -> Option<&'static str> {
         _ => None,
     }
 }
+
+impl MouseConfigFile {
+    pub fn load_or_default(path: &std::path::Path) -> Self {
+        if let Ok(content) = std::fs::read_to_string(path) {
+            if let Ok(cfg) = toml::from_str::<MouseConfigFile>(&content) {
+                return cfg;
+            }
+        }
+        toml::from_str::<MouseConfigFile>(TEMPLATE_DEFAULT).unwrap()
+    }
+
+    pub fn save(&self, path: &std::path::Path) -> anyhow::Result<()> {
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        let content = toml::to_string_pretty(self)?;
+        std::fs::write(path, content)?;
+        Ok(())
+    }
+}

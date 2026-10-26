@@ -68,8 +68,14 @@ kleekctl dpi 1600
 # Set polling rate
 kleekctl rate 1000
 
-# Toggle smooth scrolling
+# Toggle smooth scrolling and direction
 kleekctl scroll --smooth on
+kleekctl scroll --natural on       # macOS natural direction (or off for traditional)
+
+# Manage app exclusions (bypass smooth scroll in games & CAD)
+kleekctl apps list
+kleekctl apps add blender
+kleekctl apps remove steam
 
 # Manage mouse profiles and templates
 kleekctl config list

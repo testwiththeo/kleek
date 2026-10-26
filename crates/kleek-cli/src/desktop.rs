@@ -83,3 +83,67 @@ pub fn apply_desktop_pointer_settings(accel_profile: &str) -> Result<()> {
 
     Ok(())
 }
+
+pub fn apply_desktop_natural_scroll(natural: bool) -> Result<()> {
+    let bool_str = if natural { "true" } else { "false" };
+
+    // 1. KDE Plasma detection and configuration
+    let kwriteconfig_cmd = if Command::new("which")
+        .arg("kwriteconfig6")
+        .output()
+        .map(|o| o.status.success())
+        .unwrap_or(false)
+    {
+        Some("kwriteconfig6")
+    } else if Command::new("which")
+        .arg("kwriteconfig5")
+        .output()
+        .map(|o| o.status.success())
+        .unwrap_or(false)
+    {
+        Some("kwriteconfig5")
+    } else {
+        None
+    };
+
+    if let Some(cmd) = kwriteconfig_cmd {
+        let _ = Command::new(cmd)
+            .args([
+                "--file",
+                "kcminputrc",
+                "--group",
+                "Mouse",
+                "--key",
+                "NaturalScroll",
+                bool_str,
+            ])
+            .status();
+        let _ = Command::new("kcminit").arg("mouse").status();
+    }
+
+    // 2. GNOME detection and configuration
+    if Command::new("which")
+        .arg("gsettings")
+        .output()
+        .map(|o| o.status.success())
+        .unwrap_or(false)
+    {
+        let _ = Command::new("gsettings")
+            .args([
+                "set",
+                "org.gnome.desktop.peripherals.mouse",
+                "natural-scroll",
+                bool_str,
+            ])
+            .status();
+    }
+
+    // 3. Hyprland detection and configuration
+    if std::env::var_os("HYPRLAND_INSTANCE_SIGNATURE").is_some() {
+        let _ = Command::new("hyprctl")
+            .args(["keyword", "input:natural_scroll", bool_str])
+            .status();
+    }
+
+    Ok(())
+}
