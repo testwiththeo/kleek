@@ -21,21 +21,21 @@ impl Default for ScrollPhysicsConfig {
 #[allow(dead_code)]
 pub struct ScrollAccumulator {
     config: ScrollPhysicsConfig,
-    velocity: f64,
+    target_distance: f64,
+    elapsed_seconds: f64,
+    last_progress: f64,
     fractional_remainder: f64,
-    damping_factor: f64,
 }
 
 #[allow(dead_code)]
 impl ScrollAccumulator {
     pub fn new(config: ScrollPhysicsConfig) -> Self {
-        // λ = 1.0 / duration ensures total integrated distance = step_size
-        let damping_factor = 1.0 / config.duration_seconds.max(0.01);
         Self {
             config,
-            velocity: 0.0,
+            target_distance: 0.0,
+            elapsed_seconds: 0.0,
+            last_progress: 0.0,
             fractional_remainder: 0.0,
-            damping_factor,
         }
     }
 
@@ -47,8 +47,9 @@ impl ScrollAccumulator {
     ) {
         if modifiers.ctrl {
             // Controlled Zoom: clamp momentum to discrete single step to prevent runaway zoom
-            let impulse = direction * self.config.step_size * self.damping_factor * 1.0;
-            self.velocity = impulse;
+            self.target_distance = direction * 120.0;
+            self.elapsed_seconds = 0.0;
+            self.last_progress = 0.0;
             return;
         }
 
@@ -67,36 +68,56 @@ impl ScrollAccumulator {
             gain *= 0.30;
         }
 
-        // Controlled 1:1 speed with smooth fluid decay for productivity
-        let impulse =
-            direction * self.config.step_size * self.config.speed * self.damping_factor * gain;
-        self.velocity += impulse;
+        // Standard discrete step: 120 units per notch
+        let impulse_distance = direction * 120.0 * self.config.speed * gain;
+
+        // Carry over remaining distance from active glide for smooth momentum blending
+        let remaining = if self.is_active() {
+            self.target_distance * (1.0 - self.last_progress)
+        } else {
+            0.0
+        };
+
+        self.target_distance = remaining + impulse_distance;
+        self.elapsed_seconds = 0.0;
+        self.last_progress = 0.0;
     }
 
     pub fn tick(&mut self, delta_seconds: f64) -> i32 {
-        if self.velocity.abs() < 0.5 {
-            self.velocity = 0.0;
-            self.fractional_remainder = 0.0;
+        if !self.is_active() {
             return 0;
         }
 
-        // Apply decay factor to velocity
-        let decay = (-self.damping_factor * delta_seconds).exp();
-        let current_v = self.velocity;
-        self.velocity *= decay;
+        let duration = self.config.duration_seconds.max(0.01);
+        self.elapsed_seconds = (self.elapsed_seconds + delta_seconds).min(duration);
 
-        // Integral distance traveled during this interval
-        let distance = current_v * (1.0 - decay) / self.damping_factor;
+        let tau = self.elapsed_seconds / duration;
+        // Cubic-bezier ease-out curve: f(tau) = 1.0 - (1.0 - tau)^3
+        // Starts smoothly upon notch and decelerates with quadratic falloff to 0 terminal velocity
+        let current_progress = 1.0 - (1.0 - tau).powi(3);
 
-        let total_units = (distance * (120.0 / self.config.step_size)) + self.fractional_remainder;
-        let emit_units = total_units.trunc() as i32;
-        self.fractional_remainder = total_units.fract();
+        let delta_progress = current_progress - self.last_progress;
+        self.last_progress = current_progress;
+
+        let delta_units = (self.target_distance * delta_progress) + self.fractional_remainder;
+        let emit_units = delta_units.trunc() as i32;
+        self.fractional_remainder = delta_units.fract();
+
+        if self.elapsed_seconds >= duration {
+            self.target_distance = 0.0;
+            self.last_progress = 0.0;
+            self.fractional_remainder = 0.0;
+        }
 
         emit_units
     }
 
     pub fn is_active(&self) -> bool {
-        self.velocity.abs() >= 0.5
+        self.elapsed_seconds < self.config.duration_seconds && self.target_distance.abs() > 0.01
+    }
+
+    pub fn target_distance(&self) -> f64 {
+        self.target_distance
     }
 }
 
@@ -113,7 +134,7 @@ mod tests {
 
         let mut total_emitted = 0;
         for _ in 0..400 {
-            total_emitted += acc.tick(0.008); // 8ms ticks (~120Hz)
+            total_emitted += acc.tick(0.00833); // 8.33ms ticks (~120Hz)
         }
 
         assert!(!acc.is_active());
@@ -132,8 +153,8 @@ mod tests {
         };
         precision_acc.inject_impulse(1.0, 150, precision_mod);
 
-        assert!(precision_acc.velocity < normal_acc.velocity);
-        assert!((precision_acc.velocity / normal_acc.velocity - 0.30).abs() < 0.05);
+        assert!(precision_acc.target_distance < normal_acc.target_distance);
+        assert!((precision_acc.target_distance / normal_acc.target_distance - 0.30).abs() < 0.05);
     }
 
     #[test]
@@ -146,5 +167,6 @@ mod tests {
         ctrl_acc.inject_impulse(1.0, 150, ctrl_mod);
 
         assert!(ctrl_acc.is_active());
+        assert_eq!(ctrl_acc.target_distance, 120.0);
     }
 }

@@ -11,7 +11,7 @@ The mouse companion that gets out of your way.
 
 ## Features
 
-* **Natural Scrolling**: Smooths out discrete wheel clicks with fluid, momentum-based scrolling.
+* **Natural Scrolling**: Smooths out discrete wheel clicks with fluid, momentum-based scrolling using a cubic-bezier ease-out curve that lands with zero lingering slip.
 * **Modifier Key Actions**:
   - `Shift` + Scroll: Automatically converts vertical wheel rolls into smooth horizontal scrolling (`REL_HWHEEL_HI_RES`).
   - `Alt` + Scroll: Precision mode (0.3× micro speed) for fine navigation and technical reading.
