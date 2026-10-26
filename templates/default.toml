@@ -7,6 +7,10 @@ dpi = 1600
 # Polling rate in Hz (125, 250, 500, 1000)
 polling_rate = 1000
 
+[pointer]
+# "flat" removes pointer acceleration curve (1:1 raw tracking, LinearMouse style)
+accel_profile = "flat"
+
 [scroll]
 # Enable fluid, momentum-based scrolling
 smooth = true

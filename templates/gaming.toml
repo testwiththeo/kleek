@@ -7,6 +7,10 @@ dpi = 800
 # Maximum responsive polling rate
 polling_rate = 1000
 
+[pointer]
+# 1:1 raw tracking for esports precision
+accel_profile = "flat"
+
 [scroll]
 # Disable momentum smoothing for crisp weapon switching and jump binds
 smooth = false

@@ -1,4 +1,5 @@
 pub mod config;
+pub mod desktop;
 pub mod update;
 
 use clap::{Parser, Subcommand};

@@ -9,6 +9,10 @@ fn test_default_template_content() {
     let parsed: MouseConfigFile = toml::from_str(content).unwrap();
     assert_eq!(parsed.sensor.dpi, 1600);
     assert_eq!(parsed.sensor.polling_rate, 1000);
+    assert_eq!(
+        parsed.pointer.and_then(|p| p.accel_profile),
+        Some("flat".into())
+    );
     assert!(parsed.scroll.smooth);
 }
 

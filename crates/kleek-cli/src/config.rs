@@ -6,6 +6,11 @@ pub struct SensorConfig {
     pub polling_rate: u16,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct PointerConfig {
+    pub accel_profile: Option<String>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ScrollConfig {
     pub smooth: bool,
@@ -18,6 +23,7 @@ pub struct ScrollConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MouseConfigFile {
     pub sensor: SensorConfig,
+    pub pointer: Option<PointerConfig>,
     pub scroll: ScrollConfig,
 }
 
@@ -25,6 +31,9 @@ pub const TEMPLATE_DEFAULT: &str = r#"# kleek default profile
 [sensor]
 dpi = 1600
 polling_rate = 1000
+
+[pointer]
+accel_profile = "flat"
 
 [scroll]
 smooth = true
@@ -39,6 +48,9 @@ pub const TEMPLATE_GAMING: &str = r#"# kleek esports / gaming profile
 dpi = 800
 polling_rate = 1000
 
+[pointer]
+accel_profile = "flat"
+
 [scroll]
 smooth = false
 natural_direction = false
@@ -51,6 +63,9 @@ pub const TEMPLATE_PRODUCTIVITY: &str = r#"# kleek productivity profile
 [sensor]
 dpi = 1000
 polling_rate = 500
+
+[pointer]
+accel_profile = "flat"
 
 [scroll]
 smooth = true

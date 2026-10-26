@@ -318,12 +318,34 @@ async fn main() -> Result<()> {
                     }
                 }
                 ConfigAction::Apply { template } => {
-                    if let Some(content) = kleek_cli::config::get_template_content(&template) {
+                    let content_opt = kleek_cli::config::get_template_content(&template)
+                        .map(|s| s.to_string())
+                        .or_else(|| {
+                            // If not a built-in template name, check if it's the local config.toml
+                            dirs_next_config_dir()
+                                .map(|d| d.join("kleek").join("config.toml"))
+                                .and_then(|p| std::fs::read_to_string(p).ok())
+                        });
+
+                    if let Some(content) = content_opt {
                         if let Ok(cfg) =
-                            toml::from_str::<kleek_cli::config::MouseConfigFile>(content)
+                            toml::from_str::<kleek_cli::config::MouseConfigFile>(&content)
                         {
                             let _ = proxy.set_dpi(cfg.sensor.dpi).await;
                             let _ = proxy.set_smooth_scroll(cfg.scroll.smooth).await;
+
+                            if let Some(ref ptr) = cfg.pointer {
+                                if let Some(ref accel) = ptr.accel_profile {
+                                    let _ =
+                                        kleek_cli::desktop::apply_desktop_pointer_settings(accel);
+                                    println!(
+                                        "{} Applied desktop pointer acceleration: {}",
+                                        "✓".green().bold(),
+                                        accel.yellow()
+                                    );
+                                }
+                            }
+
                             println!(
                                 "{} Applied profile '{}' ({} DPI, smooth scroll: {})",
                                 "✓".green().bold(),

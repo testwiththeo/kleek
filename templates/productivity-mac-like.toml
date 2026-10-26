@@ -6,6 +6,10 @@
 dpi = 1000
 polling_rate = 500
 
+[pointer]
+# "flat" removes pointer acceleration curve (1:1 raw tracking, LinearMouse / Mac feel)
+accel_profile = "flat"
+
 [scroll]
 # Ultra-smooth glide physics
 smooth = true
