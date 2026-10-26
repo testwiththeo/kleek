@@ -1,0 +1,20 @@
+[Unit]
+Description=kleek mouse companion daemon
+Documentation=https://github.com/testwiththeo/kleek
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.cargo/bin/kleek-daemon
+Restart=on-failure
+RestartSec=3s
+
+# Sandboxing & security boundaries
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%t
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target
