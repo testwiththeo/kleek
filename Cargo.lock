@@ -582,6 +582,7 @@ dependencies = [
  "clap",
  "colored",
  "kleek-proto",
+ "tokio",
  "zbus",
 ]
 

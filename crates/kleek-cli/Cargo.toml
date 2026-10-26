@@ -6,6 +6,10 @@ license.workspace = true
 authors.workspace = true
 description = "Command-line control interface (kleekctl) for the kleek mouse daemon"
 
+[lib]
+name = "kleek_cli"
+path = "src/lib.rs"
+
 [[bin]]
 name = "kleekctl"
 path = "src/main.rs"
@@ -16,5 +20,6 @@ clap = { workspace = true }
 anyhow = { workspace = true }
 colored = { workspace = true }
 zbus = { workspace = true }
+tokio = { workspace = true }
 
 [dev-dependencies]

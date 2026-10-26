@@ -56,7 +56,7 @@ impl ScrollAccumulator {
             return 0;
         }
 
-    // Apply decay factor to velocity
+        // Apply decay factor to velocity
         let decay = (-self.damping_factor * delta_seconds).exp();
         let current_v = self.velocity;
         self.velocity *= decay;
