@@ -32,6 +32,24 @@ fn default_true() -> bool {
     true
 }
 
+fn default_side_scroll() -> String {
+    "workspace".into()
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GesturesConfig {
+    #[serde(default = "default_side_scroll")]
+    pub side_scroll: String,
+}
+
+impl Default for GesturesConfig {
+    fn default() -> Self {
+        Self {
+            side_scroll: default_side_scroll(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TouchpadConfig {
     #[serde(default = "default_true")]
@@ -64,6 +82,8 @@ pub struct MouseConfigFile {
     pub apps: Option<AppsConfig>,
     #[serde(default)]
     pub touchpad: Option<TouchpadConfig>,
+    #[serde(default)]
+    pub gestures: Option<GesturesConfig>,
 }
 
 pub const TEMPLATE_DEFAULT: &str = r#"# kleek default profile
@@ -91,6 +111,10 @@ exclude = ["blender", "steam", "factorio", "freecad", "kicad"]
 natural_scroll = true
 tap_to_click = true
 disable_while_typing = true
+
+[gestures]
+# Mac Mouse Fix side button gestures: "workspace", "volume", "tab", "disabled"
+side_scroll = "workspace"
 "#;
 
 pub const TEMPLATE_GAMING: &str = r#"# kleek esports / gaming profile
@@ -135,6 +159,10 @@ exclude = ["blender", "steam", "factorio", "freecad", "kicad"]
 natural_scroll = true
 tap_to_click = true
 disable_while_typing = true
+
+[gestures]
+# Mac Mouse Fix side button gestures: "workspace", "volume", "tab", "disabled"
+side_scroll = "workspace"
 "#;
 
 pub fn get_template_content(name: &str) -> Option<&'static str> {

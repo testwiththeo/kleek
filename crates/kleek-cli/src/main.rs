@@ -287,6 +287,43 @@ async fn main() -> Result<()> {
                 );
             }
         }
+        Commands::Gestures { side_scroll } => {
+            let config_dir =
+                dirs_next_config_dir().unwrap_or_else(|| std::path::PathBuf::from("/tmp"));
+            let cfg_path = config_dir.join("kleek").join("config.toml");
+            let mut cfg = kleek_cli::config::MouseConfigFile::load_or_default(&cfg_path);
+            let mut gestures = cfg.gestures.clone().unwrap_or_default();
+
+            if let Some(action) = side_scroll {
+                let lower = action.to_lowercase();
+                if ["workspace", "volume", "tab", "disabled"].contains(&lower.as_str()) {
+                    gestures.side_scroll = lower.clone();
+                    cfg.gestures = Some(gestures);
+                    let _ = cfg.save(&cfg_path);
+                    println!(
+                        "{} Side button + scroll action set to '{}'",
+                        "✓".green().bold(),
+                        lower.yellow()
+                    );
+                } else {
+                    eprintln!(
+                        "{} Invalid action '{}'. Allowed options: workspace, volume, tab, disabled",
+                        "Error:".red().bold(),
+                        action
+                    );
+                }
+            } else {
+                println!(
+                    "{}",
+                    "kleek Gestures Configuration (Mac Mouse Fix style):".bold()
+                );
+                println!(
+                    "  * Side Button + Scroll: {}",
+                    gestures.side_scroll.cyan().bold()
+                );
+                println!("    (Options: workspace, volume, tab, disabled)");
+            }
+        }
         Commands::Status => {
             println!("{}", "kleek daemon client (v0.1.0)".bold());
             match proxy.get_dpi().await {

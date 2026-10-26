@@ -28,3 +28,7 @@ speed = 1.2
 [apps]
 # Applications where smooth momentum scrolling is bypassed (direct 1:1 notch)
 exclude = ["blender", "steam", "factorio", "freecad", "kicad"]
+
+[gestures]
+# Mac Mouse Fix side button gestures: "workspace", "volume", "tab", "disabled"
+side_scroll = "workspace"

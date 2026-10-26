@@ -43,6 +43,12 @@ pub enum Commands {
         #[arg(long)]
         mac_preset: bool,
     },
+    /// Configure side button actions and gestures (Mac Mouse Fix style)
+    Gestures {
+        /// Set side button + scroll action (workspace, volume, tab, disabled)
+        #[arg(long)]
+        side_scroll: Option<String>,
+    },
     Status,
     /// Check and install the latest updates from GitHub Releases
     Update {

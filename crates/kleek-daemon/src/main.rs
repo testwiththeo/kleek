@@ -39,16 +39,22 @@ async fn main() -> Result<()> {
     let _scroll_handle = ScrollService::spawn(rx_scroll, virtual_mouse, physics_config, app_filter);
     info!("Smooth scroll 120Hz physics loop active.");
 
-    // Detect and intercept hardware mice with modifier key tracker
+    // Detect and intercept hardware mice with modifier key tracker and side button gestures
     let modifier_tracker = std::sync::Arc::new(kleek_daemon::modifier::ModifierTracker::new());
+    let gesture_action = load_startup_gesture_action();
     let mice = scan_mouse_event_nodes();
-    info!("Found {} hardware mouse event nodes.", mice.len());
+    info!(
+        "Found {} hardware mouse event nodes. Side gesture: {:?}",
+        mice.len(),
+        gesture_action
+    );
     for mouse_node in mice {
         info!("Spawning scroll interceptor for {:?}", mouse_node);
         kleek_daemon::interceptor::start_mouse_interceptor(
             mouse_node,
             tx_scroll.clone(),
             modifier_tracker.clone(),
+            gesture_action,
         );
     }
 
@@ -118,4 +124,20 @@ fn load_startup_app_filter() -> kleek_daemon::app_filter::AppFilter {
     } else {
         kleek_daemon::app_filter::AppFilter::new(excluded)
     }
+}
+
+fn load_startup_gesture_action() -> kleek_daemon::gestures::SideScrollAction {
+    if let Some(home) = std::env::var_os("HOME").map(std::path::PathBuf::from) {
+        let cfg_path = home.join(".config").join("kleek").join("config.toml");
+        if let Ok(content) = std::fs::read_to_string(cfg_path) {
+            if let Ok(val) = content.parse::<toml::Value>() {
+                if let Some(gestures) = val.get("gestures") {
+                    if let Some(act) = gestures.get("side_scroll").and_then(|v| v.as_str()) {
+                        return kleek_daemon::gestures::SideScrollAction::from(act);
+                    }
+                }
+            }
+        }
+    }
+    kleek_daemon::gestures::SideScrollAction::Workspace
 }

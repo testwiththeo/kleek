@@ -58,4 +58,13 @@ fn test_cli_parsing_subcommands() {
             mac_preset: true,
         }
     );
+
+    let args_gest = vec!["kleekctl", "gestures", "--side-scroll", "volume"];
+    let parsed_gest = Cli::try_parse_from(args_gest).unwrap();
+    assert_eq!(
+        parsed_gest.command,
+        Commands::Gestures {
+            side_scroll: Some("volume".into()),
+        }
+    );
 }

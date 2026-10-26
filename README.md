@@ -82,6 +82,12 @@ kleekctl touchpad                 # View mouse vs touchpad independence status
 kleekctl touchpad --mac-preset    # Enable natural scrolling & tap-to-click
 kleekctl touchpad --natural on    # Independent natural scroll toggle
 
+# Side button gestures (Mac Mouse Fix style)
+kleekctl gestures                           # View current gesture bindings
+kleekctl gestures --side-scroll workspace   # Hold side button + scroll = switch desktop
+kleekctl gestures --side-scroll volume      # Hold side button + scroll = system volume
+kleekctl gestures --side-scroll tab         # Hold side button + scroll = switch tabs
+
 # Manage mouse profiles and templates
 kleekctl config list
 kleekctl config init gaming       # Generates ~/.config/kleek/config.toml

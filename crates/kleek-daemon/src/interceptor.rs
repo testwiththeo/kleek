@@ -73,6 +73,7 @@ pub fn start_mouse_interceptor(
     path: PathBuf,
     tx: mpsc::Sender<crate::scroll_service::ScrollImpulse>,
     modifier_tracker: Arc<ModifierTracker>,
+    side_action: crate::gestures::SideScrollAction,
 ) -> tokio::task::JoinHandle<Result<()>> {
     tokio::task::spawn_blocking(move || {
         let mut dev = match Device::open(&path) {
@@ -85,17 +86,43 @@ pub fn start_mouse_interceptor(
 
         info!("Intercepting mouse scroll wheel events on {:?}", path);
         let mut last_event_time = Instant::now();
+        let mut side_button_pressed = false;
+        let mut last_gesture_time = Instant::now();
 
         loop {
             match dev.fetch_events() {
                 Ok(events) => {
                     for ev in events {
-                        if ev.event_type() == evdev::EventType::RELATIVE
+                        if ev.event_type() == evdev::EventType::KEY {
+                            let code = ev.code();
+                            // BTN_SIDE (0x116 / 278) or BTN_EXTRA (0x115 / 277)
+                            if code == evdev::Key::BTN_SIDE.0 || code == evdev::Key::BTN_EXTRA.0 {
+                                side_button_pressed = ev.value() == 1;
+                                debug!(
+                                    "Side button state changed: pressed={}",
+                                    side_button_pressed
+                                );
+                            }
+                        } else if ev.event_type() == evdev::EventType::RELATIVE
                             && ev.code() == RelativeAxisType::REL_WHEEL.0
                         {
                             let value = ev.value();
                             if value != 0 {
                                 let now = Instant::now();
+                                if side_button_pressed
+                                    && side_action != crate::gestures::SideScrollAction::Disabled
+                                {
+                                    // Rate limit gesture triggers to 140ms for clean notch-to-action mapping
+                                    if now.duration_since(last_gesture_time).as_millis() >= 140 {
+                                        last_gesture_time = now;
+                                        crate::gestures::handle_side_scroll(
+                                            side_action,
+                                            value as f64,
+                                        );
+                                    }
+                                    continue;
+                                }
+
                                 let interval_ms =
                                     now.duration_since(last_event_time).as_millis() as u64;
                                 last_event_time = now;

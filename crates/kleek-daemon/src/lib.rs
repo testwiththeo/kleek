@@ -1,5 +1,6 @@
 pub mod app_filter;
 pub mod dbus;
+pub mod gestures;
 pub mod interceptor;
 pub mod modifier;
 pub mod physics;
