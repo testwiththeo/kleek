@@ -12,6 +12,7 @@ The mouse companion that gets out of your way.
 ## Features
 
 * **Natural Scrolling**: Smooths out discrete wheel clicks with fluid, momentum-based scrolling using a cubic-bezier ease-out curve that lands with zero lingering slip.
+* **Kinetic Flick Acceleration**: Fast wheel spins automatically trigger progressive velocity scaling and adaptive glide duration, allowing you to glide through thousands of rows effortlessly while retaining single-notch precision at slow speeds.
 * **Modifier Key Actions**:
   - `Shift` + Scroll: Automatically converts vertical wheel rolls into smooth horizontal scrolling (`REL_HWHEEL_HI_RES`).
   - `Alt` + Scroll: Precision mode (0.3× micro speed) for fine navigation and technical reading.
@@ -68,9 +69,10 @@ kleekctl dpi 1600
 # Set polling rate
 kleekctl rate 1000
 
-# Toggle smooth scrolling and direction
+# Toggle smooth scrolling, direction, and kinetic flick
 kleekctl scroll --smooth on
 kleekctl scroll --natural on       # macOS natural direction (or off for traditional)
+kleekctl scroll --flick on         # Progressive kinetic flick for fast spins
 
 # Manage app exclusions (bypass smooth scroll in games & CAD)
 kleekctl apps list

@@ -24,6 +24,7 @@ duration = 0.24
 max_gain = 2.0
 # Travel speed multiplier
 speed = 1.2
+kinetic_flick = true
 
 [apps]
 # Applications where smooth momentum scrolling is bypassed (direct 1:1 notch)

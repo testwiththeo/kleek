@@ -101,7 +101,11 @@ async fn main() -> Result<()> {
                 hz.to_string().yellow()
             );
         }
-        Commands::Scroll { smooth, natural } => {
+        Commands::Scroll {
+            smooth,
+            natural,
+            flick,
+        } => {
             if let Some(s) = smooth {
                 let _ = proxy.set_smooth_scroll(s).await;
                 let status = if s {
@@ -125,6 +129,24 @@ async fn main() -> Result<()> {
                     "disabled (traditional style)".yellow()
                 };
                 println!("{} Natural scrolling {}", "->".cyan().bold(), status);
+            }
+            if let Some(f) = flick {
+                if let Some(config_dir) = dirs_next_config_dir() {
+                    let cfg_path = config_dir.join("kleek").join("config.toml");
+                    let mut cfg = kleek_cli::config::MouseConfigFile::load_or_default(&cfg_path);
+                    cfg.scroll.kinetic_flick = f;
+                    let _ = cfg.save(&cfg_path);
+                }
+                let status = if f {
+                    "enabled (fast wheel spin multiplier)".green()
+                } else {
+                    "disabled (constant 1:1 speed)".yellow()
+                };
+                println!(
+                    "{} Kinetic flick acceleration {}",
+                    "->".cyan().bold(),
+                    status
+                );
             }
         }
         Commands::Apps { action } => {
