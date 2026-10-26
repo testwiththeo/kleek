@@ -14,7 +14,10 @@ async fn main() -> Result<()> {
     let virtual_mouse = match VirtualMouse::new(VirtualMouseBuilder::default()) {
         Ok(vm) => vm,
         Err(e) => {
-            tracing::warn!("Virtual mouse initialization failed: {}. Continuing in passive telemetry mode.", e);
+            tracing::warn!(
+                "Virtual mouse initialization failed: {}. Continuing in passive telemetry mode.",
+                e
+            );
             VirtualMouse::new(VirtualMouseBuilder::default()).unwrap_or_else(|_| {
                 panic!("Unrecoverable virtual mouse initialization failure");
             })
