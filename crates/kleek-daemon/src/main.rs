@@ -93,9 +93,6 @@ fn load_startup_scroll_config() -> kleek_daemon::physics::ScrollPhysicsConfig {
                     if let Some(spd) = scroll.get("speed").and_then(|v| v.as_float()) {
                         config.speed = spd;
                     }
-                    if let Some(kf) = scroll.get("kinetic_flick").and_then(|v| v.as_bool()) {
-                        config.kinetic_flick = kf;
-                    }
                 }
             }
         }

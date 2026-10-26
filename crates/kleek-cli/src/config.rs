@@ -103,7 +103,6 @@ step_size = 30.0
 duration = 0.24
 max_gain = 2.0
 speed = 1.2
-kinetic_flick = true
 
 [apps]
 # Applications where smooth momentum scrolling is bypassed (direct 1:1 notch)
@@ -152,7 +151,6 @@ step_size = 28.0
 duration = 0.22
 max_gain = 1.8
 speed = 1.15
-kinetic_flick = true
 
 [apps]
 # Applications where smooth momentum scrolling is bypassed (direct 1:1 notch)
