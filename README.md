@@ -20,9 +20,17 @@ The mouse companion that gets out of your way.
 
 ## Quick Start
 
-### Debian / Ubuntu (.deb)
+### One-Line Install (Debian / Ubuntu / Mint / Pop!_OS)
 
-Download the latest `.deb` package from [Releases](https://github.com/testwiththeo/kleek/releases) and install it:
+Install and activate `kleek` in one command:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/testwiththeo/kleek/main/install.sh | bash
+```
+
+### Manual (.deb)
+
+Download the `.deb` package directly from [Releases](https://github.com/testwiththeo/kleek/releases) and install it:
 
 ```bash
 sudo dpkg -i kleek_*.deb
