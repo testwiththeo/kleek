@@ -40,10 +40,10 @@ accel_profile = "flat"
 [scroll]
 smooth = true
 natural_direction = true
-step_size = 35.0
-duration = 0.42
-max_gain = 3.5
-speed = 3.0
+step_size = 30.0
+duration = 0.24
+max_gain = 2.0
+speed = 1.2
 "#;
 
 pub const TEMPLATE_GAMING: &str = r#"# kleek esports / gaming profile
@@ -74,10 +74,10 @@ accel_profile = "flat"
 [scroll]
 smooth = true
 natural_direction = true
-step_size = 35.0
-duration = 0.48
-max_gain = 4.8
-speed = 3.6
+step_size = 28.0
+duration = 0.22
+max_gain = 1.8
+speed = 1.15
 "#;
 
 pub fn get_template_content(name: &str) -> Option<&'static str> {

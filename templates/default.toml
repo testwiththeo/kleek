@@ -17,10 +17,10 @@ smooth = true
 # Invert vertical scroll direction (natural macOS style)
 natural_direction = true
 # Virtual scroll speed step size
-step_size = 35.0
-# Momentum decay duration in seconds (0.1 - 0.5)
-duration = 0.42
+step_size = 30.0
+# Momentum decay duration in seconds (responsive stop)
+duration = 0.24
 # Acceleration multiplier under rapid flicking
-max_gain = 3.5
-# Travel speed multiplier (Mos / LinearMouse style)
-speed = 3.0
+max_gain = 2.0
+# Travel speed multiplier
+speed = 1.2

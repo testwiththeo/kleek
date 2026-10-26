@@ -15,10 +15,10 @@ accel_profile = "flat"
 smooth = true
 natural_direction = true
 # Micro-steps for discrete office mouse notched wheels (eliminates stepping stutters)
-step_size = 35.0
-# Extended deceleration curve for premium gliding feel
-duration = 0.48
-# Adaptive speed multiplier under fast wheel flicking
-max_gain = 4.8
-# Travel speed multiplier (Mos / LinearMouse style)
-speed = 3.6
+step_size = 28.0
+# Balanced deceleration curve for controlled, responsive document reading
+duration = 0.22
+# Controlled flicking gain to prevent over-scrolling
+max_gain = 1.8
+# Natural 1:1 travel speed multiplier
+speed = 1.15
