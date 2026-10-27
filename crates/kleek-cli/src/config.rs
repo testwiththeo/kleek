@@ -18,10 +18,7 @@ pub struct ScrollConfig {
     pub step_size: f64,
     pub duration: f64,
     pub max_gain: f64,
-    #[serde(default)]
-    pub speed: Option<f64>,
-    #[serde(default = "default_true")]
-    pub kinetic_flick: bool,
+    pub speed: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -100,9 +97,9 @@ accel_profile = "flat"
 smooth = true
 natural_direction = true
 step_size = 30.0
-duration = 0.24
+duration = 0.18
 max_gain = 2.0
-speed = 1.2
+speed = 1.65
 
 [apps]
 # Applications where smooth momentum scrolling is bypassed (direct 1:1 notch)
@@ -148,9 +145,9 @@ accel_profile = "flat"
 smooth = true
 natural_direction = true
 step_size = 28.0
-duration = 0.22
-max_gain = 1.8
-speed = 1.15
+duration = 0.18
+max_gain = 2.0
+speed = 1.65
 
 [apps]
 # Applications where smooth momentum scrolling is bypassed (direct 1:1 notch)

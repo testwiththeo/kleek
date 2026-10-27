@@ -25,8 +25,6 @@ pub enum Commands {
         smooth: Option<bool>,
         #[arg(long)]
         natural: Option<bool>,
-        #[arg(long)]
-        flick: Option<bool>,
     },
     /// Manage application exclusion list
     Apps {

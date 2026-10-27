@@ -19,11 +19,11 @@ natural_direction = true
 # Virtual scroll speed step size
 step_size = 30.0
 # Momentum decay duration in seconds (responsive stop)
-duration = 0.24
+duration = 0.18
 # Acceleration multiplier under rapid flicking
 max_gain = 2.0
-# Travel speed multiplier
-speed = 1.2
+# Travel speed multiplier (premium office mouse feel)
+speed = 1.65
 
 [apps]
 # Applications where smooth momentum scrolling is bypassed (direct 1:1 notch)

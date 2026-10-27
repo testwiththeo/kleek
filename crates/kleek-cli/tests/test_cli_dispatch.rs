@@ -27,14 +27,13 @@ fn test_cli_parsing_subcommands() {
         }
     );
 
-    let args_scroll_nat = vec!["kleekctl", "scroll", "--natural", "true", "--flick", "true"];
+    let args_scroll_nat = vec!["kleekctl", "scroll", "--natural", "true"];
     let parsed_scroll_nat = Cli::try_parse_from(args_scroll_nat).unwrap();
     assert_eq!(
         parsed_scroll_nat.command,
         Commands::Scroll {
             smooth: None,
             natural: Some(true),
-            flick: Some(true),
         }
     );
 

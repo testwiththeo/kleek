@@ -1,11 +1,43 @@
 use crate::modifier::ModifierTracker;
 use anyhow::Result;
 use evdev::{Device, RelativeAxisType};
+use libc::{c_int, ioctl};
+use std::os::unix::io::AsRawFd;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::mpsc;
 use tracing::{debug, info, warn};
+
+// EVIOCGRAB ioctl request code = _IO('E', 0x90) on Linux.
+// Computed from standard Linux _IOC encoding: (dir<<30)|(size<<16)|(type<<8)|(nr<<0).
+// For _IO (no data transfer): dir=0, size=0, type='E'(0x45), nr=0x90 → 0x4590.
+const EVIOCGRAB: u64 = 0x4590;
+
+// EVIOCGRAB ioctl: makes the caller the exclusive recipient of events.
+// When grabbed (1), events are NOT forwarded to other clients — our virtual uinput
+// device becomes the sole scroll source, replacing physical REL_WHEEL entirely.
+// This is critical: without grabbing, the kernel also dispatches the raw physical
+// REL_WHEEL events to libinput → double scrolling (physical + virtual).
+fn grab_device(dev: &Device) -> std::io::Result<()> {
+    let fd = dev.as_raw_fd();
+    let arg: c_int = 1; // 1 = grab, 0 = ungrab
+    let ret = unsafe { ioctl(fd, EVIOCGRAB, arg) };
+    if ret < 0 {
+        return Err(std::io::Error::last_os_error());
+    }
+    Ok(())
+}
+
+fn ungrab_device(dev: &Device) -> std::io::Result<()> {
+    let fd = dev.as_raw_fd();
+    let arg: c_int = 0;
+    let ret = unsafe { ioctl(fd, EVIOCGRAB, arg) };
+    if ret < 0 {
+        return Err(std::io::Error::last_os_error());
+    }
+    Ok(())
+}
 
 pub fn is_touchpad_device(dev: &Device) -> bool {
     let name = dev.name().unwrap_or("").to_lowercase();
@@ -85,12 +117,28 @@ pub fn start_mouse_interceptor(
         };
 
         info!("Intercepting mouse scroll wheel events on {:?}", path);
+        // Grab the device exclusively so physical REL_WHEEL events are NOT
+        // forwarded to libinput — preventing double-scrolling. Our virtual
+        // uinput device becomes the sole scroll source.
+        if let Err(e) = grab_device(&dev) {
+            warn!(
+                "Failed to grab {}: {} — physical events may still pass through (double scroll risk)",
+                path.display(),
+                e
+            );
+        } else {
+            info!(
+                "Successfully grabbed {:?} for exclusive event handling",
+                path
+            );
+        }
         let mut last_event_time = Instant::now();
         let mut side_button_pressed = false;
         let mut last_gesture_time = Instant::now();
 
         loop {
-            match dev.fetch_events() {
+            let events_result = dev.fetch_events();
+            match events_result {
                 Ok(events) => {
                     for ev in events {
                         if ev.event_type() == evdev::EventType::KEY {
@@ -151,6 +199,9 @@ pub fn start_mouse_interceptor(
                 }
             }
         }
+        // Release the exclusive grab so the device returns to normal
+        // libinput control when we disconnect.
+        let _ = ungrab_device(&dev);
         Ok(())
     })
 }

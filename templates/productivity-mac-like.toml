@@ -16,12 +16,12 @@ smooth = true
 natural_direction = true
 # Micro-steps for discrete office mouse notched wheels (eliminates stepping stutters)
 step_size = 28.0
-# Balanced deceleration curve for controlled, responsive document reading
-duration = 0.22
-# Controlled flicking gain to prevent over-scrolling
-max_gain = 1.8
-# Natural 1:1 travel speed multiplier
-speed = 1.15
+# Momentum decay for snappy, controlled glide
+duration = 0.18
+# Higher flick gain for premium wheel feel on office mice
+max_gain = 2.0
+# Enhanced travel speed — makes cheap mice feel expensive
+speed = 1.65
 
 [apps]
 # Applications where smooth momentum scrolling is bypassed (direct 1:1 notch)

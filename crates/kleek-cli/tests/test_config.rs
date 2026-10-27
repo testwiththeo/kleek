@@ -32,6 +32,6 @@ fn test_productivity_template_content() {
     let parsed: MouseConfigFile = toml::from_str(content).unwrap();
     assert_eq!(parsed.sensor.dpi, 1000);
     assert_eq!(parsed.scroll.step_size, 28.0);
-    assert_eq!(parsed.scroll.speed, Some(1.15));
+    assert_eq!(parsed.scroll.speed, 1.65);
     assert!(parsed.scroll.smooth);
 }

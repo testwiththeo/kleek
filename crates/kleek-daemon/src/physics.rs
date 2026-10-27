@@ -11,9 +11,12 @@ impl Default for ScrollPhysicsConfig {
     fn default() -> Self {
         Self {
             step_size: 28.0,
-            duration_seconds: 0.22,
-            max_gain: 1.8,
-            speed: 1.15,
+            // Shorter duration = more crisp stop, feels more direct/controlled
+            duration_seconds: 0.18,
+            // Higher max_gain = bigger boost on fast flicks (premium mouse wheel feel)
+            max_gain: 2.0,
+            // Higher speed = each notch travels more distance → more impactful
+            speed: 1.65,
         }
     }
 }
@@ -68,9 +71,9 @@ impl ScrollAccumulator {
         let mut gain = if consecutive_interval_ms < 50 {
             self.config.max_gain
         } else if consecutive_interval_ms < 100 {
-            1.35
+            1.65
         } else if consecutive_interval_ms < 180 {
-            1.15
+            1.35
         } else {
             1.0
         };

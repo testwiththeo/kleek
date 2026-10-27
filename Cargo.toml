@@ -35,6 +35,7 @@ zbus = "5.5"
 hidapi = "2.6"
 udev = "0.9"
 evdev = "0.12"
+libc = "0.2"
 
 # CLI & Configuration
 clap = { version = "4.5", features = ["derive"] }
