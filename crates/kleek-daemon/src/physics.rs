@@ -11,12 +11,12 @@ impl Default for ScrollPhysicsConfig {
     fn default() -> Self {
         Self {
             step_size: 28.0,
-            // Shorter duration = more crisp stop, feels more direct/controlled
-            duration_seconds: 0.18,
-            // Higher max_gain = bigger boost on fast flicks (premium mouse wheel feel)
-            max_gain: 2.0,
-            // Higher speed = each notch travels more distance → more impactful
-            speed: 1.65,
+            // Extended duration (0.24s) produces a gentle, fluid ease-out glide
+            duration_seconds: 0.24,
+            // Moderate max_gain (1.35x) prevents runaway velocity on fast spins
+            max_gain: 1.35,
+            // Calibrated speed (0.90x): single notch glides ~108 units (~2 lines), soft & controllable
+            speed: 0.90,
         }
     }
 }
@@ -61,19 +61,20 @@ impl ScrollAccumulator {
 
         // Check for instant direction reversal (snappy braking)
         let is_reversal = self.active_direction != 0.0 && (direction * self.active_direction) < 0.0;
+        // Dampen leftover glide (0.65x) when chaining consecutive notches to prevent compounding runaway velocity
         let remaining = if self.is_active() && !is_reversal {
-            self.target_distance * (1.0 - self.last_progress)
+            self.target_distance * (1.0 - self.last_progress) * 0.65
         } else {
             0.0
         };
         self.active_direction = direction;
 
-        let mut gain = if consecutive_interval_ms < 50 {
+        // Calibrated gain tiers: no acceleration for normal reading (>=85ms),
+        // gentle boost for medium scrolling (45-85ms), capped acceleration for fast flicks (<45ms).
+        let mut gain = if consecutive_interval_ms < 45 {
             self.config.max_gain
-        } else if consecutive_interval_ms < 100 {
-            1.65
-        } else if consecutive_interval_ms < 180 {
-            1.35
+        } else if consecutive_interval_ms < 85 {
+            1.15
         } else {
             1.0
         };
@@ -86,7 +87,14 @@ impl ScrollAccumulator {
         // Standard discrete step: 120 units per notch (Mos / LinearMouse calibrated)
         let impulse_distance = direction * 120.0 * self.config.speed * gain;
 
-        self.target_distance = remaining + impulse_distance;
+        // Cap maximum cumulative distance in flight to 3 notches (360 * speed) to ensure scrolling never shoots down runaway
+        let max_target = 360.0 * self.config.speed;
+        let combined = remaining + impulse_distance;
+        self.target_distance = if combined.abs() > max_target {
+            direction * max_target
+        } else {
+            combined
+        };
         self.elapsed_seconds = 0.0;
         self.last_progress = 0.0;
     }
