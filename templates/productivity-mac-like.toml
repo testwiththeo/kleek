@@ -17,11 +17,11 @@ natural_direction = true
 # Micro-steps for discrete office mouse notched wheels (eliminates stepping stutters)
 step_size = 28.0
 # Momentum decay for gentle, controlled glide
-duration = 0.24
+duration = 0.25
 # Controlled flick gain for natural acceleration
-max_gain = 1.35
-# Calibrated travel speed — soft, fluid Mac-like scrolling without runaway speed
-speed = 0.90
+max_gain = 1.25
+# Calibrated travel speed — soft, fluid Mac-like scrolling (Mos 33.6px calibrated)
+speed = 0.40
 
 [apps]
 # Applications where smooth momentum scrolling is bypassed (direct 1:1 notch)

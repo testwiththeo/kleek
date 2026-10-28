@@ -13,10 +13,10 @@ impl Default for ScrollPhysicsConfig {
             step_size: 28.0,
             // Extended duration (0.24s) produces a gentle, fluid ease-out glide
             duration_seconds: 0.24,
-            // Moderate max_gain (1.35x) prevents runaway velocity on fast spins
-            max_gain: 1.35,
-            // Calibrated speed (0.90x): single notch glides ~108 units (~2 lines), soft & controllable
-            speed: 0.90,
+            // Capped flick multiplier (1.25x) prevents runaway speed on fast spins
+            max_gain: 1.25,
+            // Calibrated speed (0.45x): single notch glides ~53 units (~40px, Mos 33.6px calibrated), soft & controllable
+            speed: 0.45,
         }
     }
 }
@@ -74,7 +74,7 @@ impl ScrollAccumulator {
         let mut gain = if consecutive_interval_ms < 45 {
             self.config.max_gain
         } else if consecutive_interval_ms < 85 {
-            1.15
+            1.10
         } else {
             1.0
         };

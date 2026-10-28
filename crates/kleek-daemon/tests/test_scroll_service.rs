@@ -9,7 +9,8 @@ fn test_scroll_emission_sequence() {
     while acc.is_active() {
         total += acc.tick(0.00833);
     }
-    assert!(total >= 100);
+    // Verify that a single notch impulse decays smoothly into calibrated units
+    assert!(total >= 40);
 }
 
 #[test]

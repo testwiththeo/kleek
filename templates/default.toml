@@ -21,9 +21,9 @@ step_size = 28.0
 # Momentum decay duration in seconds (fluid, relaxed stop)
 duration = 0.24
 # Acceleration multiplier under rapid flicking
-max_gain = 1.35
-# Travel speed multiplier (comfortable, calibrated for smooth reading)
-speed = 0.95
+max_gain = 1.25
+# Travel speed multiplier (calibrated for gentle line-by-line reading)
+speed = 0.45
 
 [apps]
 # Applications where smooth momentum scrolling is bypassed (direct 1:1 notch)

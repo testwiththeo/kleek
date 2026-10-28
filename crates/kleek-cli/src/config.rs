@@ -98,8 +98,8 @@ smooth = true
 natural_direction = true
 step_size = 28.0
 duration = 0.24
-max_gain = 1.35
-speed = 0.95
+max_gain = 1.25
+speed = 0.45
 
 [apps]
 # Applications where smooth momentum scrolling is bypassed (direct 1:1 notch)
@@ -145,9 +145,9 @@ accel_profile = "flat"
 smooth = true
 natural_direction = true
 step_size = 28.0
-duration = 0.24
-max_gain = 1.35
-speed = 0.90
+duration = 0.25
+max_gain = 1.25
+speed = 0.40
 
 [apps]
 # Applications where smooth momentum scrolling is bypassed (direct 1:1 notch)
