@@ -2,8 +2,9 @@ use crate::modifier::ModifierState;
 use crate::physics::{ScrollAccumulator, ScrollPhysicsConfig};
 use crate::uinput::VirtualMouse;
 use anyhow::Result;
+use std::sync::Arc;
 use std::time::Duration;
-use tokio::sync::mpsc;
+use tokio::sync::{mpsc, RwLock};
 use tokio::task::JoinHandle;
 
 pub struct ScrollImpulse {
@@ -18,17 +19,22 @@ impl ScrollService {
     pub fn spawn(
         mut rx: mpsc::Receiver<ScrollImpulse>,
         mut virtual_mouse: VirtualMouse,
-        config: ScrollPhysicsConfig,
+        config: Arc<RwLock<ScrollPhysicsConfig>>,
         app_filter: crate::app_filter::AppFilter,
     ) -> JoinHandle<Result<()>> {
         tokio::spawn(async move {
-            let mut v_accumulator = ScrollAccumulator::new(config.clone());
-            let mut h_accumulator = ScrollAccumulator::new(config);
+            let initial_config = config.read().await.clone();
+            let mut v_accumulator = ScrollAccumulator::new(initial_config.clone());
+            let mut h_accumulator = ScrollAccumulator::new(initial_config);
             let mut interval = tokio::time::interval(Duration::from_micros(8333)); // ~120 Hz
 
             loop {
                 tokio::select! {
                     Some(impulse) = rx.recv() => {
+                        let current_cfg = config.read().await.clone();
+                        v_accumulator.update_config(current_cfg.clone());
+                        h_accumulator.update_config(current_cfg);
+
                         if app_filter.is_excluded() {
                             // Excluded app active (e.g. game, CAD, terminal): bypass smooth momentum gliding!
                             // Emit immediate discrete notch 1:1

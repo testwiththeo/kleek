@@ -34,6 +34,7 @@ fn test_cli_parsing_subcommands() {
         Commands::Scroll {
             smooth: None,
             natural: Some(true),
+            speed: None,
         }
     );
 

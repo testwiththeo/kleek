@@ -136,6 +136,10 @@ impl ScrollAccumulator {
     pub fn target_distance(&self) -> f64 {
         self.target_distance
     }
+
+    pub fn update_config(&mut self, config: ScrollPhysicsConfig) {
+        self.config = config;
+    }
 }
 
 #[cfg(test)]

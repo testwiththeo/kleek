@@ -11,7 +11,7 @@ pub struct Cli {
     pub command: Commands,
 }
 
-#[derive(Subcommand, Debug, PartialEq, Eq)]
+#[derive(Subcommand, Debug, PartialEq)]
 pub enum Commands {
     Dpi {
         value: Option<u16>,
@@ -25,6 +25,9 @@ pub enum Commands {
         smooth: Option<bool>,
         #[arg(long)]
         natural: Option<bool>,
+        /// Live scroll speed multiplier (e.g. 0.25 for gentle reading, 0.45 default, 0.90 fast)
+        #[arg(long)]
+        speed: Option<f64>,
     },
     /// Manage application exclusion list
     Apps {

@@ -34,8 +34,9 @@ async fn test_scroll_service_spawn_with_app_filter() {
     let (tx, rx) = mpsc::channel(16);
     let vm = VirtualMouse::new(VirtualMouseBuilder::default()).unwrap();
     let filter = AppFilter::new(vec!["blender".into()]);
+    let cfg = std::sync::Arc::new(tokio::sync::RwLock::new(ScrollPhysicsConfig::default()));
 
-    let handle = ScrollService::spawn(rx, vm, ScrollPhysicsConfig::default(), filter);
+    let handle = ScrollService::spawn(rx, vm, cfg, filter);
 
     let impulse = ScrollImpulse {
         direction: 1.0,

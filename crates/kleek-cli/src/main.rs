@@ -14,6 +14,8 @@ trait KleekManagerProxy {
     fn get_dpi(&self) -> zbus::Result<u16>;
     fn get_battery(&self) -> zbus::Result<(u8, bool)>;
     fn set_smooth_scroll(&self, enabled: bool) -> zbus::Result<()>;
+    fn set_scroll_speed(&self, speed: f64) -> zbus::Result<()>;
+    fn reload_config(&self) -> zbus::Result<()>;
 }
 
 #[tokio::main]
@@ -101,7 +103,11 @@ async fn main() -> Result<()> {
                 hz.to_string().yellow()
             );
         }
-        Commands::Scroll { smooth, natural } => {
+        Commands::Scroll {
+            smooth,
+            natural,
+            speed,
+        } => {
             if let Some(s) = smooth {
                 let _ = proxy.set_smooth_scroll(s).await;
                 let status = if s {
@@ -125,6 +131,20 @@ async fn main() -> Result<()> {
                     "disabled (traditional style)".yellow()
                 };
                 println!("{} Natural scrolling {}", "->".cyan().bold(), status);
+            }
+            if let Some(spd) = speed {
+                let _ = proxy.set_scroll_speed(spd).await;
+                if let Some(config_dir) = dirs_next_config_dir() {
+                    let cfg_path = config_dir.join("kleek").join("config.toml");
+                    let mut cfg = kleek_cli::config::MouseConfigFile::load_or_default(&cfg_path);
+                    cfg.scroll.speed = spd;
+                    let _ = cfg.save(&cfg_path);
+                }
+                println!(
+                    "{} Scroll speed set to {}x (live-applied)",
+                    "->".cyan().bold(),
+                    format!("{:.2}", spd).yellow()
+                );
             }
         }
         Commands::Apps { action } => {
@@ -482,6 +502,7 @@ async fn main() -> Result<()> {
                         {
                             let _ = proxy.set_dpi(cfg.sensor.dpi).await;
                             let _ = proxy.set_smooth_scroll(cfg.scroll.smooth).await;
+                            let _ = proxy.reload_config().await;
 
                             if let Some(ref ptr) = cfg.pointer {
                                 if let Some(ref accel) = ptr.accel_profile {
