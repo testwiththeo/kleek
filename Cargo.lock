@@ -582,7 +582,7 @@ dependencies = [
 
 [[package]]
 name = "kleek-cli"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "clap",
@@ -597,7 +597,7 @@ dependencies = [
 
 [[package]]
 name = "kleek-daemon"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "evdev",
@@ -616,7 +616,7 @@ dependencies = [
 
 [[package]]
 name = "kleek-driver"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "evdev",
  "hidapi",
@@ -628,7 +628,7 @@ dependencies = [
 
 [[package]]
 name = "kleek-proto"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bitflags 2.13.2",
  "thiserror 2.0.21",
