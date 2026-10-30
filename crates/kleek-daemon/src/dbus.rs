@@ -44,6 +44,10 @@ impl KleekManager {
 
 #[interface(name = "org.freedesktop.Kleek1.Manager")]
 impl KleekManager {
+    async fn get_version(&self) -> zbus::fdo::Result<String> {
+        Ok(env!("CARGO_PKG_VERSION").to_string())
+    }
+
     async fn set_dpi(&self, dpi: u16) -> zbus::fdo::Result<()> {
         self.active_dpi.store(dpi, Ordering::SeqCst);
         Ok(())

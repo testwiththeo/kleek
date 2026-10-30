@@ -10,6 +10,7 @@ use zbus::proxy;
     default_path = "/org/freedesktop/Kleek1"
 )]
 trait KleekManagerProxy {
+    fn get_version(&self) -> zbus::Result<String>;
     fn set_dpi(&self, dpi: u16) -> zbus::Result<()>;
     fn get_dpi(&self) -> zbus::Result<u16>;
     fn get_battery(&self) -> zbus::Result<(u8, bool)>;
@@ -345,10 +346,21 @@ async fn main() -> Result<()> {
             }
         }
         Commands::Status => {
-            println!("{}", "kleek daemon client (v0.1.0)".bold());
-            match proxy.get_dpi().await {
-                Ok(dpi) => println!("Daemon state: connected (active DPI: {})", dpi),
-                Err(_) => println!("Daemon state: offline"),
+            println!(
+                "{}",
+                format!("kleek CLI client (v{})", env!("CARGO_PKG_VERSION")).bold()
+            );
+            match proxy.get_version().await {
+                Ok(daemon_ver) => {
+                    let dpi = proxy.get_dpi().await.unwrap_or(1600);
+                    println!(
+                        "Daemon state: {} (v{}, active DPI: {})",
+                        "connected".green(),
+                        daemon_ver.yellow(),
+                        dpi
+                    );
+                }
+                Err(_) => println!("Daemon state: {}", "offline".red()),
             }
         }
         Commands::Update { check } => {
